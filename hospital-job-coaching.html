@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BigLinker 병원 취업 코칭</title>
+  <style>
+    :root {
+      --header-bg: #f6f7fb; --header-surface: #ffffff; --header-line: #e5e8ef;
+      --header-line-strong: #d7dbe5; --header-text: #17191f; --header-muted: #6e7687;
+      --bg: #0b0e13; --bg-soft: #121722; --bg-dark: #090c11; --panel: #f5f6fb;
+      --text: #f6f7fb; --muted: rgba(255,255,255,0.66); --muted-dark: #5d6473;
+      --brand: #4a68ff; --brand-2: #7f92ff; --brand-soft: #eef0ff;
+      --max: 1320px; --radius-xl: 28px; --radius-lg: 22px; --radius-md: 18px;
+      --radius-sm: 12px; --radius-xs: 8px;
+      --shadow: 0 24px 60px rgba(0,0,0,0.28); --shadow-card: 0 18px 36px rgba(36,46,78,0.08);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Pretendard", "Noto Sans KR", sans-serif;
+      background: radial-gradient(circle at 50% 0%, rgba(66,104,255,0.12), transparent 18%),
+        linear-gradient(180deg, #090b0f 0%, #0b0e13 32%, #0d1015 100%);
+      color: var(--text);
+    }
+    a { color: inherit; text-decoration: none; }
+    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 28px; }
+    .inner { max-width: var(--max); margin: 0 auto; padding: 0 20px; }
+
+    /* ── HEADER ── */
+    .top-shell {
+      position: sticky; top: 0; z-index: 120;
+      background: rgba(255,255,255,0.94); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--header-line);
+      transition: transform 0.28s ease, opacity 0.28s ease;
+    }
+    .top-shell.is-collapsed { transform: translateY(-100%); opacity: 0; }
+    .sticky-category-shell {
+      position: sticky; top: 0; z-index: 110;
+      background: rgba(247,248,252,0.98);
+      border-top: 1px solid #edf0f6; border-bottom: 1px solid var(--header-line);
+      backdrop-filter: blur(12px);
+    }
+    .family-bar { background: #fff; }
+    .family-outer { display: flex; justify-content: center; padding: 10px 0; }
+    .family-wrap {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 46px; padding: 4px; border: 1px solid var(--header-line-strong);
+      border-radius: 16px; background: #fff; box-shadow: 0 4px 16px rgba(32,43,73,0.08);
+      overflow-x: auto; scrollbar-width: none; white-space: nowrap;
+    }
+    .family-wrap::-webkit-scrollbar, .category-tabs::-webkit-scrollbar { display: none; }
+    .family-link { flex: 0 0 auto; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 700; color: var(--header-muted); }
+    .family-link.is-active { background: var(--brand-soft); color: var(--brand); }
+    .main-header { background: #fff; }
+    .main-header-wrap { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; min-height: 78px; }
+    .header-promo {
+      justify-self: start; align-self: stretch; display: flex; align-items: center;
+      padding: 0 16px; border-radius: 0 0 14px 14px; border: 1px solid #dfe3ff; border-top: 0;
+      background: linear-gradient(180deg, #eef2ff 0%, #f6f8ff 100%);
+      color: var(--brand); font-size: 13px; font-weight: 800; white-space: nowrap;
+    }
+    .brand { display: flex; flex-direction: column; align-items: center; justify-self: center; text-align: center; gap: 6px; }
+    .brand-mark { width: 132px; height: 44px; object-fit: contain; }
+    .brand-copy span { display: block; color: var(--header-muted); font-size: 12px; line-height: 1.45; }
+    .header-actions { display: flex; align-items: center; justify-self: end; gap: 8px; }
+    .cta-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--brand); background: var(--brand); color: #fff; font-weight: 700; font-size: 13px; }
+    .category-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 58px; gap: 12px; }
+    .category-balance { justify-self: start; width: 120px; }
+    .category-tabs { display: flex; align-items: center; justify-content: center; gap: 2px; overflow-x: auto; scrollbar-width: none; white-space: nowrap; }
+    .category-tab { flex: 0 0 auto; position: relative; padding: 0 16px; min-height: 48px; display: inline-flex; align-items: center; font-size: 14px; font-weight: 700; color: var(--header-muted); }
+    .category-tab.is-active { color: var(--brand); }
+    .category-tab.is-active::after { content: ""; position: absolute; left: 16px; right: 16px; bottom: 0; height: 3px; background: var(--brand); border-radius: 999px; }
+    .category-utility { display: flex; align-items: center; justify-self: end; gap: 6px; width: 240px; }
+    .utility-link { display: inline-flex; align-items: center; min-height: 28px; padding: 0 10px; border-radius: 999px; border: 1px solid #e4e7ef; background: #f8f9fc; color: #6f7786; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .utility-link:hover { background: var(--brand-soft); color: var(--brand); }
+
+    /* ── SECTION BASE ── */
+    .section-eyebrow { display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.36); margin-bottom: 18px; }
+    .section-eyebrow::before { content: ""; width: 28px; height: 2px; background: currentColor; flex-shrink: 0; }
+    .section-eyebrow.center { justify-content: center; }
+    .section-eyebrow.center::before { display: none; }
+    .section-light .section-eyebrow, .section-panel .section-eyebrow { color: var(--brand); }
+    .section-light { background: #fff; padding: 100px 0; }
+    .section-panel { background: var(--panel); padding: 100px 0; }
+    .section-dark {
+      padding: 110px 0;
+      --header-text: var(--text); --header-muted: var(--muted); --brand-soft: rgba(74,104,255,0.12);
+    }
+    .section-dark .light-card { --header-text: #17191f; --header-muted: #6e7687; --brand-soft: #eef0ff; }
+    .sec-h2 { font-size: clamp(22px,2.8vw,36px); font-weight: 700; letter-spacing: -0.045em; line-height: 1.3; }
+
+    /* ── HERO ── */
+    .hero { padding: 88px 0 68px; text-align: center; }
+    .hero-kicker { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(127,146,255,0.3); background: rgba(74,104,255,0.1); font-size: 12px; font-weight: 700; color: var(--brand-2); margin-bottom: 28px; }
+    .hero h1 { max-width: 780px; margin: 0 auto 20px; font-size: clamp(30px,4.6vw,60px); line-height: 1.14; letter-spacing: -0.05em; font-weight: 700; color: var(--text); }
+    .hero h1 em { color: var(--brand-2); font-style: normal; }
+    .hero p { max-width: 560px; margin: 0 auto 36px; color: var(--muted); font-size: 15px; line-height: 1.8; }
+    .hero-actions { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin-bottom: 52px; }
+    .btn-primary { display: inline-flex; align-items: center; justify-content: center; min-height: 54px; padding: 0 28px; border-radius: 13px; font-size: 15px; font-weight: 700; background: var(--brand); color: #fff; box-shadow: 0 10px 28px rgba(74,104,255,0.28); transition: transform 0.2s; }
+    .btn-primary:hover { transform: translateY(-2px); }
+    .btn-secondary { display: inline-flex; align-items: center; justify-content: center; min-height: 54px; padding: 0 24px; border-radius: 13px; font-size: 15px; font-weight: 700; border: 1.5px solid rgba(255,255,255,0.22); color: var(--text); background: rgba(255,255,255,0.06); transition: transform 0.2s; }
+    .btn-secondary:hover { transform: translateY(-2px); }
+    .hero-stats { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
+    .hero-stat { text-align: center; }
+    .hero-stat .s-num { font-size: 32px; font-weight: 900; color: var(--brand-2); letter-spacing: -0.04em; line-height: 1; }
+    .hero-stat .s-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* ── 채용 변화 ── */
+    .trend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+    .trend-left h2 { margin-bottom: 16px; }
+    .trend-left p { font-size: 14.5px; color: var(--muted); line-height: 1.85; margin-bottom: 20px; }
+    .trend-flow { display: flex; align-items: center; gap: 12px; padding: 20px; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.04); margin-bottom: 20px; flex-wrap: wrap; }
+    .trend-box { flex: 1; min-width: 100px; text-align: center; }
+    .trend-box .t-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.4); margin-bottom: 6px; }
+    .trend-box .t-val { font-size: 13px; color: var(--muted); line-height: 1.55; }
+    .trend-arrow { color: var(--brand-2); font-size: 18px; flex-shrink: 0; }
+    .eval-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .eval-card { padding: 20px 18px; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.04); }
+    .eval-card .e-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .eval-card p { font-size: 12.5px; color: var(--muted); line-height: 1.65; margin: 0; }
+
+    /* ── WHY ── */
+    .why-4grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .why-card { padding: 28px 24px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.04); }
+    .why-card .w-icon { width: 44px; height: 44px; border-radius: 12px; background: rgba(74,104,255,0.15); border: 1px solid rgba(74,104,255,0.28); display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 16px; }
+    .why-card h3 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .why-card p { font-size: 13px; color: var(--muted); line-height: 1.7; margin: 0; }
+
+    /* ── FOR WHO ── */
+    .who-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .who-card { padding: 28px 22px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.04); }
+    .who-card .wc-tag { display: inline-flex; align-items: center; min-height: 26px; padding: 0 12px; border-radius: 999px; background: rgba(74,104,255,0.15); border: 1px solid rgba(74,104,255,0.3); font-size: 11px; font-weight: 800; color: var(--brand-2); margin-bottom: 14px; }
+    .who-card h3 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+    .who-card ul { list-style: none; display: grid; gap: 7px; }
+    .who-card ul li { display: flex; align-items: flex-start; gap: 7px; font-size: 13px; color: var(--muted); line-height: 1.65; }
+    .who-card ul li::before { content: "•"; color: var(--brand-2); flex-shrink: 0; font-size: 12px; margin-top: 2px; }
+
+    /* ── 비교표 (LIGHT) ── */
+    .compare-table { width: 100%; border-collapse: separate; border-spacing: 0; border-radius: var(--radius-md); overflow: hidden; border: 1px solid #e7ebf3; }
+    .compare-table th { padding: 16px 22px; font-size: 13px; font-weight: 800; text-align: center; }
+    .compare-table th:first-child { text-align: left; background: #f8f9fc; color: var(--header-muted); width: 130px; }
+    .compare-table th.ours { background: var(--brand); color: #fff; }
+    .compare-table th.theirs { background: #f0f1f7; color: var(--header-muted); }
+    .compare-table td { padding: 15px 22px; font-size: 13.5px; border-top: 1px solid #edf0f6; text-align: center; vertical-align: middle; line-height: 1.6; }
+    .compare-table td:first-child { text-align: left; background: #fafbfc; color: var(--header-muted); font-size: 12px; font-weight: 700; }
+    .compare-table td.ours { background: rgba(74,104,255,0.06); color: var(--header-text); font-weight: 600; }
+    .compare-table td.theirs { color: #a0a8b8; }
+    .compare-note { text-align: center; font-size: 13px; color: var(--header-muted); margin-top: 20px; font-style: italic; }
+
+    /* ── 4단계 프로세스 (DARK) ── */
+    .process-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; position: relative; }
+    .process-grid::before { content: ""; position: absolute; top: 40px; left: 12.5%; right: 12.5%; height: 2px; background: rgba(74,104,255,0.25); z-index: 0; }
+    .process-item { position: relative; z-index: 1; text-align: center; padding: 0 10px; }
+    .proc-circle { width: 80px; height: 80px; border-radius: 999px; background: var(--bg-soft); border: 2px solid rgba(74,104,255,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; margin: 0 auto 18px; }
+    .proc-circle.active { background: var(--brand); border-color: var(--brand); }
+    .proc-step { font-size: 10px; font-weight: 800; letter-spacing: 0.06em; color: var(--brand-2); }
+    .proc-circle.active .proc-step { color: rgba(255,255,255,0.8); }
+    .proc-num { font-size: 20px; font-weight: 900; color: var(--text); line-height: 1; }
+    .process-item h3 { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+    .process-item ul { list-style: none; display: grid; gap: 5px; }
+    .process-item ul li { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+    /* ── 4주 커리큘럼 (PANEL) ── */
+    .week-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .week-card { padding: 26px 20px; border-radius: var(--radius-md); border: 1px solid #e7ebf3; background: #fff; box-shadow: var(--shadow-card); }
+    .week-card.highlight { background: var(--brand); border-color: var(--brand); }
+    .week-tag { display: inline-flex; align-items: center; min-height: 22px; padding: 0 10px; border-radius: 999px; background: var(--brand-soft); color: var(--brand); font-size: 10px; font-weight: 800; letter-spacing: 0.06em; margin-bottom: 10px; }
+    .week-card.highlight .week-tag { background: rgba(255,255,255,0.25); color: #fff; }
+    .week-card h3 { font-size: 14px; font-weight: 700; color: var(--header-text); margin-bottom: 12px; line-height: 1.35; }
+    .week-card.highlight h3 { color: #fff; }
+    .week-list { display: grid; gap: 6px; list-style: none; }
+    .week-list li { font-size: 12px; color: var(--header-muted); line-height: 1.6; display: flex; align-items: flex-start; gap: 6px; }
+    .week-list li::before { content: "—"; color: var(--brand); flex-shrink: 0; font-size: 11px; margin-top: 1px; }
+    .week-card.highlight .week-list li { color: rgba(255,255,255,0.8); }
+    .week-card.highlight .week-list li::before { color: rgba(255,255,255,0.5); }
+    .week-output { display: flex; align-items: center; gap: 6px; margin-top: 16px; padding-top: 12px; border-top: 1px solid #edf0f6; font-size: 11px; font-weight: 700; color: var(--brand); }
+    .week-card.highlight .week-output { border-top-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.85); }
+
+    /* ── 직무별 분야 (DARK) ── */
+    .domain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .domain-card { padding: 24px 22px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.04); }
+    .domain-card .d-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .domain-card .d-icon { width: 36px; height: 36px; border-radius: 9px; background: rgba(74,104,255,0.15); border: 1px solid rgba(74,104,255,0.28); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .domain-card h3 { font-size: 14px; font-weight: 700; color: var(--text); }
+    .domain-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .domain-tag { display: inline-flex; align-items: center; min-height: 24px; padding: 0 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); font-size: 11.5px; color: var(--muted); }
+
+    /* ── 성공 사례 (LIGHT) ── */
+    .case-intro { display: grid; grid-template-columns: 1fr 1.4fr; gap: 40px; align-items: start; margin-bottom: 40px; }
+    .ba-box { padding: 26px 24px; border-radius: var(--radius-md); }
+    .ba-box.before { border: 1px solid #e7ebf3; background: #fff; box-shadow: var(--shadow-card); }
+    .ba-box.after { background: var(--brand); }
+    .ba-label { font-size: 11px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
+    .ba-box.before .ba-label { color: var(--header-muted); }
+    .ba-box.after .ba-label { color: rgba(255,255,255,0.7); }
+    .ba-list { display: grid; gap: 8px; }
+    .ba-item { display: flex; align-items: flex-start; gap: 7px; font-size: 13px; line-height: 1.65; }
+    .ba-box.before .ba-item { color: var(--header-muted); }
+    .ba-box.after .ba-item { color: rgba(255,255,255,0.9); }
+    .ba-dot { flex-shrink: 0; width: 6px; height: 6px; border-radius: 999px; margin-top: 7px; }
+    .ba-box.before .ba-dot { background: #cbd5e1; }
+    .ba-box.after .ba-dot { background: rgba(255,255,255,0.5); }
+    .case-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .case-card { padding: 22px 20px; border-radius: var(--radius-sm); border: 1px solid #e7ebf3; background: #fff; box-shadow: var(--shadow-card); }
+    .case-badge { display: inline-flex; align-items: center; min-height: 22px; padding: 0 10px; border-radius: 999px; background: var(--brand-soft); color: var(--brand); font-size: 11px; font-weight: 800; margin-bottom: 10px; }
+    .case-card p { font-size: 13px; color: var(--header-muted); line-height: 1.7; }
+    .case-card .c-result { font-size: 12px; font-weight: 700; color: var(--brand); margin-top: 10px; }
+
+    /* ── REVIEW MARQUEE ── */
+    .review-band { padding: 110px 0 130px; background: #0b0e13; }
+    .review-band-head { text-align: center; margin-bottom: 46px; }
+    .review-band-head h2 { font-size: clamp(24px,3vw,40px); font-weight: 700; line-height: 1.24; letter-spacing: -0.045em; color: var(--text); margin-bottom: 10px; }
+    .review-band-head p { font-size: 15px; color: var(--muted); }
+    .review-marquee-wrap { width: 100vw; position: relative; left: 50%; margin-left: -50vw; overflow: hidden; display: flex; flex-direction: column; gap: 14px; padding: 8px 0 4px; }
+    .review-marquee-row { display: flex; gap: 14px; width: max-content; }
+    .review-marquee-row:nth-child(1) { animation: rmq-ltr 38s linear infinite; }
+    .review-marquee-row:nth-child(2) { animation: rmq-rtl 55s linear infinite; }
+    .review-marquee-row:nth-child(3) { animation: rmq-ltr 46s linear infinite; }
+    @keyframes rmq-ltr { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    @keyframes rmq-rtl { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }
+    .review-mini { flex-shrink: 0; padding: 20px 22px 16px; border-radius: 18px; background: rgba(255,255,255,0.055); border: 1px solid rgba(255,255,255,0.09); display: flex; flex-direction: column; }
+    .review-mini:nth-child(4n+1) { width: 280px; } .review-mini:nth-child(4n+2) { width: 340px; } .review-mini:nth-child(4n+3) { width: 260px; } .review-mini:nth-child(4n+4) { width: 320px; }
+    .review-mini.accent-blue { background: rgba(74,104,255,0.10); border-color: rgba(74,104,255,0.25); }
+    .review-mini.accent-purple { background: rgba(167,139,250,0.10); border-color: rgba(167,139,250,0.22); }
+    .review-mini p { margin: 8px 0 auto; font-size: 13.5px; color: rgba(255,255,255,0.78); line-height: 1.7; flex: 1; }
+    .review-mini-meta { display: flex; align-items: center; gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.07); }
+    .review-mini-avatar { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg,#4a68ff,#a78bfa); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #fff; }
+    .review-mini.accent-blue .review-mini-avatar { background: linear-gradient(135deg,#2563eb,#4a68ff); }
+    .review-mini.accent-purple .review-mini-avatar { background: linear-gradient(135deg,#7c3aed,#a78bfa); }
+    .review-mini-info strong { display: block; font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.9); }
+    .review-mini-info span { font-size: 10px; color: #7f92ff; font-weight: 600; }
+    .star-row { color: #f59e0b; font-size: 13px; margin-bottom: 8px; }
+
+    /* ── FAQ ── */
+    .faq-band { padding: 100px 0; background: var(--bg-soft); }
+    .faq-title { font-size: clamp(22px,2.5vw,34px); font-weight: 700; letter-spacing: -0.04em; line-height: 1.3; color: var(--text); margin-bottom: 40px; text-align: center; }
+    details { border-bottom: 1px solid rgba(255,255,255,0.08); }
+    summary { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; cursor: pointer; list-style: none; font-size: 15px; font-weight: 600; color: var(--text); }
+    summary::-webkit-details-marker { display: none; }
+    .faq-arrow { font-size: 18px; color: var(--brand-2); transition: transform 0.2s; flex-shrink: 0; }
+    details[open] .faq-arrow { transform: rotate(180deg); }
+    details p { padding: 0 0 22px; color: var(--muted); font-size: 14px; line-height: 1.8; }
+
+    /* ── CTA ── */
+    .cta-band { padding: 120px 0; background: radial-gradient(ellipse at 50% 0%, rgba(74,104,255,0.24), transparent 70%); }
+    .cta-inner { max-width: 700px; margin: 0 auto; text-align: center; }
+    .cta-badge { display: inline-flex; align-items: center; min-height: 28px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(127,146,255,0.4); background: rgba(127,146,255,0.1); font-size: 12px; font-weight: 700; color: var(--brand-2); margin-bottom: 20px; }
+    .cta-inner h2 { font-size: clamp(26px,3.2vw,44px); font-weight: 700; line-height: 1.25; letter-spacing: -0.045em; color: var(--text); margin-bottom: 16px; }
+    .cta-inner p { font-size: 15px; color: var(--muted); line-height: 1.8; margin-bottom: 36px; }
+    .cta-contact { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; margin-top: 28px; }
+    .cta-contact-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: rgba(255,255,255,0.55); }
+    .cta-contact-item strong { color: rgba(255,255,255,0.9); font-weight: 700; }
+
+    /* ── FOOTER ── */
+    .site-footer { background: var(--bg-dark); border-top: 1px solid rgba(255,255,255,0.06); }
+    .footer-inner { max-width: var(--max); margin: 0 auto; padding: 0 28px; }
+    .footer-top { display: grid; grid-template-columns: 280px 1fr; gap: 60px; padding: 60px 0 40px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .footer-logo { font-size: 18px; font-weight: 900; color: var(--brand-2); margin-bottom: 12px; }
+    .footer-brand-desc { font-size: 13px; color: var(--muted-dark); line-height: 1.75; margin: 0 0 16px; }
+    .footer-sns { display: flex; gap: 8px; }
+    .footer-sns-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: var(--muted-dark); font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .footer-nav-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+    .footer-nav-group h4 { font-size: 12px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 14px; }
+    .footer-nav-group a { display: block; font-size: 13px; color: var(--muted-dark); margin-bottom: 10px; font-weight: 500; }
+    .footer-nav-group a:hover { color: var(--brand-2); }
+    .footer-bottom { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; gap: 16px; }
+    .footer-legal { font-size: 12px; color: var(--muted-dark); line-height: 1.7; }
+    .footer-policy-links { display: flex; gap: 16px; }
+    .footer-policy-links a { font-size: 12px; color: var(--muted-dark); font-weight: 600; }
+
+    /* ── MOBILE ── */
+    .mobile-floating-cta { display: none; position: fixed; bottom: 20px; left: 16px; right: 16px; border-radius: 16px; background: var(--brand); padding: 14px 18px; box-shadow: 0 16px 40px rgba(74,104,255,0.4); align-items: center; gap: 12px; z-index: 900; }
+    .mobile-floating-cta strong { display: block; font-size: 14px; font-weight: 800; color: #fff; }
+    .mobile-floating-cta span { font-size: 12px; color: rgba(255,255,255,0.75); }
+
+    @media (max-width: 760px) {
+      .wrap, .inner { padding: 0 16px; }
+      .main-header-wrap, .category-row { grid-template-columns: 1fr; }
+      .header-promo, .header-actions, .category-balance { display: none; }
+      .brand { justify-self: center; }
+      .category-utility { width: auto; overflow-x: auto; scrollbar-width: none; white-space: nowrap; padding-bottom: 8px; }
+      .mobile-floating-cta { display: flex; }
+      .trend-grid { grid-template-columns: 1fr; gap: 32px; }
+      .eval-grid { grid-template-columns: 1fr; }
+      .why-4grid { grid-template-columns: 1fr; }
+      .who-cols { grid-template-columns: 1fr; }
+      .process-grid { grid-template-columns: 1fr 1fr; }
+      .process-grid::before { display: none; }
+      .week-grid { grid-template-columns: 1fr 1fr; }
+      .domain-grid { grid-template-columns: 1fr; }
+      .case-intro { grid-template-columns: 1fr; }
+      .case-cards { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr; gap: 32px; }
+      .footer-nav-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══ HEADER ══ -->
+  <div class="top-shell" id="topShell">
+    <div class="family-bar">
+      <div class="inner">
+        <div class="family-outer">
+          <div class="family-wrap">
+            <a class="family-link" href="https://biglinker-transfer.vercel.app/">대학&편입</a>
+            <a class="family-link" href="https://biglinker-graduate.vercel.app/">대학원&논문</a>
+            <a class="family-link is-active" href="https://biglinker-job.vercel.app/">취업</a>
+            <a class="family-link" href="https://biglinker-biz.vercel.app/">기업교육</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <header class="main-header">
+      <div class="inner">
+        <div class="main-header-wrap">
+          <div class="header-promo">자소서·이력서·면접 통합 코칭</div>
+          <a class="brand" href="./index.html">
+            <img class="brand-mark" src="./biglinker-logo.png" alt="빅링커 로고">
+            <div class="brand-copy"><span>입시·대학원·학업계획서·논문·면접 코칭 전문</span></div>
+          </a>
+          <div class="header-actions"><a class="cta-btn" href="#cta">상담 신청</a></div>
+        </div>
+      </div>
+    </header>
+  </div>
+
+  <div class="sticky-category-shell">
+    <div class="inner">
+      <div class="category-row">
+        <div class="category-balance" aria-hidden="true"></div>
+        <nav class="category-tabs" aria-label="서비스 카테고리">
+          <a class="category-tab" href="./career-coaching.html">기업취업코칭</a>
+          <a class="category-tab" href="./hospital-job-coaching.html">병원취업코칭</a>
+          <a class="category-tab" href="./appointment-coaching.html">임용코치</a>
+        </nav>
+        <div class="category-utility">
+          <button class="utility-link" type="button">블로그</button>
+          <button class="utility-link" type="button">리얼 TIP</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main>
+
+    <!-- ══ HERO ══ -->
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero-kicker">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#7f92ff" stroke-width="1.4"/><path d="M4.5 7l2 2 3-3" stroke="#7f92ff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          HOSPITAL JOB COACHING
+        </div>
+        <h1>간호사/간호조무사도<br><em>빅링커 리드코칭!</em></h1>
+        <p>자기소개서, 이력서, 면접까지 한 번에.<br>병원 채용 기준에 맞춰 실전형 지원서와 답변을 완성합니다.</p>
+        <div class="hero-actions">
+          <a class="btn-primary" href="#cta">무료 상담 신청하기 →</a>
+          <a class="btn-secondary" href="#process">병원 취업 준비 순서 보기</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="s-num">1:1</div>
+            <div class="s-label">서류·면접 통합 코칭</div>
+          </div>
+          <div class="hero-stat">
+            <div class="s-num">4주</div>
+            <div class="s-label">집중 준비 로드맵</div>
+          </div>
+          <div class="hero-stat">
+            <div class="s-num">3종</div>
+            <div class="s-label">자소서·이력서·면접 동시 정리</div>
+          </div>
+          <div class="hero-stat">
+            <div class="s-num">병원형</div>
+            <div class="s-label">현장 맞춤 답변 설계</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 채용 변화 ══ -->
+    <section class="section-dark" id="why-now">
+      <div class="wrap">
+        <div class="trend-grid">
+          <div class="trend-left">
+            <div class="section-eyebrow">Hospital Hiring</div>
+            <h2 class="sec-h2" style="color:var(--text);margin-bottom:16px;">병원 취업은<br>서류와 면접이 함께 평가됩니다</h2>
+            <p>간호부와 인사팀은 스펙만 보지 않습니다. 지원 동기, 병원 이해도, 임상 적응력, 커뮤니케이션 태도까지 한 흐름으로 확인합니다.</p>
+            <div class="trend-flow">
+              <div class="trend-box">
+                <div class="t-label">서류</div>
+                <div class="t-val">자기소개서 톤<br>이력서 완성도</div>
+              </div>
+              <div class="trend-arrow">→</div>
+              <div class="trend-box">
+                <div class="t-label">면접</div>
+                <div class="t-val">지원 동기 검증<br>상황 대처 확인</div>
+              </div>
+              <div class="trend-arrow">→</div>
+              <div class="trend-box">
+                <div class="t-label">합격 포인트</div>
+                <div class="t-val" style="color:var(--brand-2);font-weight:700;">병원 FIT<br>실전 대응력</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p style="font-size:14px;color:var(--muted);margin-bottom:18px;">병원 채용에서 자주 보는 핵심 요소</p>
+            <div class="eval-grid">
+              <div class="eval-card">
+                <div class="e-title">병원 이해도</div>
+                <p>지원 기관의 특성, 조직 문화, 환자군을 알고 있는지 확인합니다.</p>
+              </div>
+              <div class="eval-card">
+                <div class="e-title">지원 동기 설득력</div>
+                <p>왜 이 병원인지, 왜 지금 지원하는지 일관된 논리로 설명해야 합니다.</p>
+              </div>
+              <div class="eval-card">
+                <div class="e-title">현장 적응력</div>
+                <p>실습 경험, 협업 태도, 돌발 상황 대응 경험을 구체적으로 봅니다.</p>
+              </div>
+              <div class="eval-card">
+                <div class="e-title">면접 태도</div>
+                <p>전문성만큼 침착함, 전달력, 환자 중심 태도도 중요하게 평가됩니다.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ WHY BIGLINKER ══ -->
+    <section class="section-dark" id="why-us">
+      <div class="wrap">
+        <div class="section-eyebrow center">Why BigLinker</div>
+        <h2 class="sec-h2" style="color:var(--text);text-align:center;margin-bottom:12px;">병원 취업 준비를<br>한 번에 정리합니다</h2>
+        <p style="text-align:center;font-size:15px;color:var(--muted);margin-bottom:44px;">한 문항씩 뜯어보는 첨삭이 아니라, 지원서부터 면접 답변까지 한 흐름으로 설계해 병원형 지원자로 정리합니다.</p>
+        <div class="why-4grid">
+          <div class="why-card">
+            <div class="w-icon">🔍</div>
+            <h3>병원별 맞춤 지원 전략</h3>
+            <p>상급종합병원, 종합병원, 요양병원, 의원급 기관의 채용 포인트 차이를 반영해 지원 방향을 잡습니다.</p>
+          </div>
+          <div class="why-card">
+            <div class="w-icon">📈</div>
+            <h3>자기소개서 문항별 구조화</h3>
+            <p>지원 동기, 성격 장단점, 실습 경험, 협업 사례를 병원에서 읽기 좋은 흐름으로 정리합니다.</p>
+          </div>
+          <div class="why-card">
+            <div class="w-icon">🧩</div>
+            <h3>면접 질문별 답변 설계</h3>
+            <p>지원 이유, 이직 이유, 태움·갈등·실수 경험, 환자 응대 질문까지 실제 병원 면접 흐름으로 준비합니다.</p>
+          </div>
+          <div class="why-card">
+            <div class="w-icon">💬</div>
+            <h3>이력서와 강점 포지셔닝</h3>
+            <p>경력, 실습, 자격, 공백기, 부서 희망 사유를 한 문장으로 설득력 있게 연결해 인상을 만듭니다.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ FOR WHO ══ -->
+    <section class="section-dark" id="for-who">
+      <div class="wrap">
+        <div class="section-eyebrow center">For Who</div>
+        <h2 class="sec-h2" style="color:var(--text);text-align:center;margin-bottom:44px;">이런 분들에게 병원 취업 코칭이 필요합니다</h2>
+        <div class="who-cols">
+          <div class="who-card">
+            <div class="wc-tag">신입 간호사</div>
+            <h3>첫 병원 취업 준비</h3>
+            <ul>
+              <li>실습 경험을 자소서에 어떻게 써야 할지 막막한 분</li>
+              <li>병원별 지원 동기를 차별화하기 어려운 분</li>
+              <li>첫 면접에서 무엇을 준비해야 할지 정리가 안 된 분</li>
+            </ul>
+          </div>
+          <div class="who-card">
+            <div class="wc-tag">경력 간호사</div>
+            <h3>이직 및 부서 이동</h3>
+            <ul>
+              <li>현재 병원 경력을 더 좋은 조건으로 연결하고 싶은 분</li>
+              <li>퇴사 사유와 이직 이유를 안정적으로 설명하고 싶은 분</li>
+              <li>희망 부서 적합성을 논리적으로 보여주고 싶은 분</li>
+            </ul>
+          </div>
+          <div class="who-card">
+            <div class="wc-tag">간호조무사 / 재취업</div>
+            <h3>공백기 이후 복귀 준비</h3>
+            <ul>
+              <li>경력 공백을 어떻게 설명해야 할지 고민인 분</li>
+              <li>병원 복귀용 이력서와 자기소개서가 필요한 분</li>
+              <li>면접에서 자신감 있게 말하는 훈련이 필요한 분</li>
+            </ul>
+          </div>
+        </div>
+        <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:28px;">병원 지원은 문항 하나보다 전체 인상이 중요합니다. 서류와 면접을 함께 보며 정리해야 결과가 안정적입니다.</p>
+      </div>
+    </section>
+
+    <!-- ══ 비교표 (LIGHT) ══ -->
+    <section class="section-light" id="compare">
+      <div class="wrap">
+        <div class="section-eyebrow center">The Difference</div>
+        <h2 class="sec-h2" style="color:var(--header-text);text-align:center;margin-bottom:10px;">빅링커 vs. 일반 병원 취업 첨삭</h2>
+        <p style="text-align:center;font-size:15px;color:var(--header-muted);margin-bottom:40px;">문항 단위 첨삭을 넘어 병원 지원 전체 흐름을 잡아주는 통합 코칭</p>
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>구분</th>
+              <th class="theirs">일반 첨삭/모의면접</th>
+              <th class="ours">빅링커 병원 취업 코칭</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>준비 범위</td>
+              <td class="theirs">자소서 또는 면접 한 영역만 부분 점검</td>
+              <td class="ours">자기소개서·이력서·면접을 한 흐름으로 통합 설계</td>
+            </tr>
+            <tr>
+              <td>병원 분석</td>
+              <td class="theirs">공통 문항 중심의 일반적인 답변 작성</td>
+              <td class="ours">지원 병원 성격과 희망 부서를 반영한 맞춤 전략</td>
+            </tr>
+            <tr>
+              <td>답변 방식</td>
+              <td class="theirs">무난하지만 비슷한 표현 반복</td>
+              <td class="ours">실습·경력·태도를 연결한 병원형 답변 구조 설계</td>
+            </tr>
+            <tr>
+              <td>목표</td>
+              <td class="theirs">제출 가능한 문서 완성</td>
+              <td class="ours">최종 면접까지 이어지는 일관된 지원자 이미지 구축</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="compare-note">"병원 취업은 서류와 면접이 따로 놀면 흔들립니다. 한 번에 연결해 준비해야 합격률이 올라갑니다."</p>
+      </div>
+    </section>
+
+    <!-- ══ 4단계 프로세스 (DARK) ══ -->
+    <section class="section-dark" id="process">
+      <div class="wrap">
+        <div class="section-eyebrow center">4-Step Process</div>
+        <h2 class="sec-h2" style="color:var(--text);text-align:center;margin-bottom:10px;">병원 취업 4단계 프로세스</h2>
+        <p style="text-align:center;font-size:15px;color:var(--muted);margin-bottom:56px;">지원 병원 분석부터 자소서, 이력서, 면접 답변까지 단계별로 연결하는 실전 준비 방식</p>
+        <div class="process-grid">
+          <div class="process-item">
+            <div class="proc-circle">
+              <span class="proc-step">STEP</span>
+              <span class="proc-num">01</span>
+            </div>
+            <h3>지원 방향 진단 및<br>병원 포지셔닝</h3>
+            <ul>
+              <li>현재 경력, 실습, 자격 현황 정리</li>
+              <li>지원 병원/부서 우선순위 설정</li>
+              <li>강점과 보완 포인트 진단</li>
+            </ul>
+          </div>
+          <div class="process-item">
+            <div class="proc-circle">
+              <span class="proc-step">STEP</span>
+              <span class="proc-num">02</span>
+            </div>
+            <h3>자기소개서 및<br>이력서 구조화</h3>
+            <ul>
+              <li>지원 동기, 성장 과정 문항 정리</li>
+              <li>실습·경력 경험의 사례화</li>
+              <li>이력서 핵심 정보 압축 정리</li>
+            </ul>
+          </div>
+          <div class="process-item">
+            <div class="proc-circle">
+              <span class="proc-step">STEP</span>
+              <span class="proc-num">03</span>
+            </div>
+            <h3>면접 예상 질문 및<br>답변 설계</h3>
+            <ul>
+              <li>지원 이유, 이직 이유 답변 정리</li>
+              <li>갈등·실수·압박 질문 대비</li>
+              <li>태도와 전달력 교정 포인트 도출</li>
+            </ul>
+          </div>
+          <div class="process-item">
+            <div class="proc-circle active">
+              <span class="proc-step">STEP</span>
+              <span class="proc-num">04</span>
+            </div>
+            <h3>최종 피드백 및<br>실전 시뮬레이션</h3>
+            <ul>
+              <li>실제 면접 흐름에 맞춘 리허설</li>
+              <li>말투, 시선, 속도, 태도 교정</li>
+              <li>제출본과 답변 최종 점검</li>
+            </ul>
+          </div>
+        </div>
+        <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:40px;">문서와 면접을 따로 준비하지 않고, 같은 메시지가 유지되도록 전 과정을 연결합니다.</p>
+      </div>
+    </section>
+
+    <!-- ══ 4주 커리큘럼 (PANEL) ══ -->
+    <section class="section-panel" id="curriculum">
+      <div class="wrap">
+        <div class="section-eyebrow center">4-Week Curriculum</div>
+        <h2 class="sec-h2" style="color:var(--header-text);text-align:center;margin-bottom:10px;">4주 병원 취업 준비 커리큘럼</h2>
+        <p style="text-align:center;font-size:15px;color:var(--header-muted);margin-bottom:44px;">지원서 초안 정리부터 최종 면접 리허설까지, 병원 취업에 필요한 준비를 4주 안에 압축합니다.</p>
+        <div class="week-grid">
+          <div class="week-card">
+            <div class="week-tag">WEEK 01</div>
+            <h3>지원 병원 분석 및 포지셔닝</h3>
+            <ul class="week-list">
+              <li>지원 병원 리스트와 우선순위 정리</li>
+              <li>희망 부서와 현재 이력 매칭</li>
+              <li>경력·실습·자격 강점 정리</li>
+              <li>자소서 방향성 설계</li>
+            </ul>
+            <div class="week-output">📄 산출물: 병원 지원 전략 시트</div>
+          </div>
+          <div class="week-card">
+            <div class="week-tag">WEEK 02</div>
+            <h3>자기소개서 · 이력서 완성</h3>
+            <ul class="week-list">
+              <li>지원 동기와 강점 문항 정리</li>
+              <li>실습/경력 사례를 문항별로 재작성</li>
+              <li>이력서 표현과 배열 최적화</li>
+              <li>병원별 버전 분기 포인트 설계</li>
+            </ul>
+            <div class="week-output">📝 산출물: 제출용 자소서·이력서 초안</div>
+          </div>
+          <div class="week-card">
+            <div class="week-tag">WEEK 03</div>
+            <h3>면접 답변 구조화</h3>
+            <ul class="week-list">
+              <li>빈출 질문 리스트와 답변 구조 설계</li>
+              <li>지원 이유·퇴사 이유·갈등 경험 정리</li>
+              <li>압박 질문 대응 키워드 준비</li>
+              <li>답변 톤과 길이 교정</li>
+            </ul>
+            <div class="week-output">📁 산출물: 병원 면접 예상답변 노트</div>
+          </div>
+          <div class="week-card highlight">
+            <div class="week-tag">WEEK 04</div>
+            <h3>최종 실전 시뮬레이션</h3>
+            <ul class="week-list">
+              <li>실전형 모의면접 진행</li>
+              <li>답변 전달력과 표정·속도 점검</li>
+              <li>최종 제출본과 면접 메시지 일치 확인</li>
+              <li>면접 직전 체크리스트 정리</li>
+            </ul>
+            <div class="week-output">🏆 산출물: 최종 면접 피드백 리포트</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 직무별 전문 분야 (DARK) ══ -->
+    <section class="section-dark" id="domains">
+      <div class="wrap">
+        <div class="section-eyebrow center">Support Areas</div>
+        <h2 class="sec-h2" style="color:var(--text);text-align:center;margin-bottom:10px;">병원 취업 준비 핵심 영역</h2>
+        <p style="text-align:center;font-size:15px;color:var(--muted);margin-bottom:44px;">지원 대상과 준비 단계에 따라 문서, 포지션, 면접 포인트를 세밀하게 나눠 정리합니다.</p>
+        <div class="domain-grid">
+          <div class="domain-card">
+            <div class="d-head">
+              <div class="d-icon">🏥</div>
+              <h3>지원 기관 유형별 준비</h3>
+            </div>
+            <div class="domain-tags">
+              <span class="domain-tag">상급종합병원</span>
+              <span class="domain-tag">대학병원</span>
+              <span class="domain-tag">종합병원</span>
+              <span class="domain-tag">요양병원</span>
+              <span class="domain-tag">검진센터</span>
+              <span class="domain-tag">의원급 기관</span>
+            </div>
+          </div>
+          <div class="domain-card">
+            <div class="d-head">
+              <div class="d-icon">📝</div>
+              <h3>서류 준비 영역</h3>
+            </div>
+            <div class="domain-tags">
+              <span class="domain-tag">자기소개서</span>
+              <span class="domain-tag">이력서</span>
+              <span class="domain-tag">지원 동기</span>
+              <span class="domain-tag">경력 기술</span>
+              <span class="domain-tag">실습 경험 정리</span>
+            </div>
+          </div>
+          <div class="domain-card">
+            <div class="d-head">
+              <div class="d-icon">🎤</div>
+              <h3>면접 준비 영역</h3>
+            </div>
+            <div class="domain-tags">
+              <span class="domain-tag">1분 자기소개</span>
+              <span class="domain-tag">지원 이유</span>
+              <span class="domain-tag">이직 사유</span>
+              <span class="domain-tag">갈등/실수 질문</span>
+              <span class="domain-tag">압박 질문</span>
+            </div>
+          </div>
+          <div class="domain-card">
+            <div class="d-head">
+              <div class="d-icon">💼</div>
+              <h3>지원 대상별 전략</h3>
+            </div>
+            <div class="domain-tags">
+              <span class="domain-tag">신입 간호사</span>
+              <span class="domain-tag">경력 간호사</span>
+              <span class="domain-tag">간호조무사</span>
+              <span class="domain-tag">재취업 준비</span>
+              <span class="domain-tag">공백기 복귀</span>
+            </div>
+          </div>
+          <div class="domain-card">
+            <div class="d-head">
+              <div class="d-icon">📌</div>
+              <h3>최종 점검 포인트</h3>
+            </div>
+            <div class="domain-tags">
+              <span class="domain-tag">문항별 톤 통일</span>
+              <span class="domain-tag">답변 길이 조절</span>
+              <span class="domain-tag">병원 정보 반영</span>
+              <span class="domain-tag">말투·태도 교정</span>
+              <span class="domain-tag">면접 직전 체크리스트</span>
+            </div>
+          </div>
+        </div>
+        <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:32px;">병원 취업은 단일 문서보다 전체 흐름이 중요합니다. 모든 영역을 한 메시지로 맞추는 데 초점을 둡니다.</p>
+      </div>
+    </section>
+
+    <!-- ══ 성공 사례 (LIGHT) ══ -->
+    <section class="section-light" id="cases">
+      <div class="wrap">
+        <div class="section-eyebrow center">Success Cases</div>
+        <h2 class="sec-h2" style="color:var(--header-text);text-align:center;margin-bottom:44px;">병원 취업 준비 변화 사례</h2>
+        <div class="case-intro">
+          <div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div class="ba-box before">
+                <div class="ba-label">Before</div>
+                <div class="ba-list">
+                  <div class="ba-item"><div class="ba-dot"></div>병원마다 비슷한 자기소개서 제출</div>
+                  <div class="ba-item"><div class="ba-dot"></div>실습 경험을 막연하게만 설명</div>
+                  <div class="ba-item"><div class="ba-dot"></div>면접 답변이 짧거나 흔들림</div>
+                </div>
+              </div>
+              <div class="ba-box after">
+                <div class="ba-label">After</div>
+                <div class="ba-list">
+                  <div class="ba-item"><div class="ba-dot"></div>병원별 맞춤 서류 버전 완성</div>
+                  <div class="ba-item"><div class="ba-dot"></div>질문별 구조화된 면접 답변 확보</div>
+                  <div class="ba-item"><div class="ba-dot"></div>일관된 지원자 이미지 형성</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p style="font-size:15px;color:var(--header-text);font-weight:700;margin-bottom:6px;">"병원 취업은 좋은 문장보다 일관된 인상이 결정합니다."</p>
+            <p style="font-size:14px;color:var(--header-muted);line-height:1.8;">빅링커는 문항별 첨삭만 하지 않습니다. 지원 병원과 부서를 기준으로 자기소개서, 이력서, 면접 답변을 한 흐름으로 정리해 면접장까지 이어지는 설득력을 만듭니다.</p>
+          </div>
+        </div>
+        <div class="case-cards">
+          <div class="case-card">
+            <div class="case-badge">신입 간호사 지원</div>
+            <p>첫 대학병원 지원에서 자기소개서 문항마다 톤이 달라 어려움을 겪던 지원자가 병원별 지원 동기와 실습 경험을 재구성해 서류와 면접을 일관되게 정리했습니다.</p>
+            <div class="c-result">→ 서류 통과 후 면접 자신감 확보</div>
+          </div>
+          <div class="case-card">
+            <div class="case-badge">경력 간호사 이직</div>
+            <p>퇴사 사유 설명과 부서 이동 지원 이유가 약했던 경력 간호사가 이직 스토리를 다시 정리해 희망 부서 적합성을 더 또렷하게 전달할 수 있게 됐습니다.</p>
+            <div class="c-result">→ 이직 면접 답변 구조 안정화</div>
+          </div>
+          <div class="case-card">
+            <div class="case-badge">간호조무사 재취업</div>
+            <p>공백기 이후 병원 복귀를 준비하며 자신감이 떨어졌던 지원자가 경력 공백 설명과 환자 응대 강점을 정리해 다시 지원 가능한 상태로 회복했습니다.</p>
+            <div class="c-result">→ 공백기 설명과 면접 태도 정리 완료</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ REVIEW MARQUEE ══ -->
+    <section class="review-band">
+      <div class="review-band-head">
+        <h2>병원 취업 준비 후기</h2>
+        <p>자소서와 면접을 함께 정리하며 자신감을 되찾은 분들의 이야기</p>
+      </div>
+      <div class="review-marquee-wrap">
+        <div class="review-marquee-row">
+          <div class="review-mini accent-blue"><div class="star-row">★★★★★</div><p>"실습 경험을 그냥 나열만 하고 있었는데, 병원에서 듣고 싶어 하는 방식으로 다시 정리해주셔서 자소서가 훨씬 또렷해졌어요."</p><div class="review-mini-meta"><div class="review-mini-avatar">김</div><div class="review-mini-info"><strong>김하은</strong><span>신입 간호사 지원 준비</span></div></div></div>
+          <div class="review-mini"><div class="star-row">★★★★★</div><p>"지원 동기랑 퇴사 이유가 계속 흔들렸는데, 병원별로 어떻게 다르게 말해야 하는지 기준이 생겨서 면접이 훨씬 편해졌습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">이</div><div class="review-mini-info"><strong>이수진</strong><span>경력 간호사 이직 준비</span></div></div></div>
+          <div class="review-mini accent-purple"><div class="star-row">★★★★★</div><p>"공백기를 어떻게 설명해야 할지 가장 걱정이었는데, 숨기지 않고 자연스럽게 말하는 구조를 잡아주셔서 자신감이 생겼어요."</p><div class="review-mini-meta"><div class="review-mini-avatar">박</div><div class="review-mini-info"><strong>박지연</strong><span>간호조무사 재취업 준비</span></div></div></div>
+          <div class="review-mini"><div class="star-row">★★★★★</div><p>"문항마다 다른 사람처럼 쓰던 자소서를 한 톤으로 맞춰주셔서 제출할 때 훨씬 안정감이 있었습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">최</div><div class="review-mini-info"><strong>최민서</strong><span>대학병원 지원서 완성</span></div></div></div>
+          <div class="review-mini accent-blue"><div class="star-row">★★★★★</div><p>"면접에서 꼭 나오는 질문을 실제 순서대로 연습해보니, 답변 길이와 말투까지 바로 잡을 수 있어서 실전 감각이 생겼어요."</p><div class="review-mini-meta"><div class="review-mini-avatar">정</div><div class="review-mini-info"><strong>정서현</strong><span>종합병원 면접 대비</span></div></div></div>
+          <div class="review-mini"><div class="star-row">★★★★★</div><p>"좋은 경험이 있어도 병원 채용 문항에 맞게 쓰지 않으면 힘들다는 걸 알게 됐어요. 구조를 잡아준 게 가장 컸습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">한</div><div class="review-mini-info"><strong>한유리</strong><span>신입 간호사 면접 준비</span></div></div></div>
+          <div class="review-mini accent-blue"><div class="star-row">★★★★★</div><p>"실습 경험을 그냥 나열만 하고 있었는데, 병원에서 듣고 싶어 하는 방식으로 다시 정리해주셔서 자소서가 훨씬 또렷해졌어요."</p><div class="review-mini-meta"><div class="review-mini-avatar">김</div><div class="review-mini-info"><strong>김하은</strong><span>신입 간호사 지원 준비</span></div></div></div>
+          <div class="review-mini"><div class="star-row">★★★★★</div><p>"지원 동기랑 퇴사 이유가 계속 흔들렸는데, 병원별로 어떻게 다르게 말해야 하는지 기준이 생겨서 면접이 훨씬 편해졌습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">이</div><div class="review-mini-info"><strong>이수진</strong><span>경력 간호사 이직 준비</span></div></div></div>
+        </div>
+        <div class="review-marquee-row">
+          <div class="review-mini"><div class="star-row">★★★★★</div><p>"이력서가 단순 경력 나열처럼 보여서 고민이었는데, 병동 경험이 어떤 강점인지 보이게 바뀌었습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">오</div><div class="review-mini-info"><strong>오다은</strong><span>경력 이직용 이력서 정리</span></div></div></div>
+          <div class="review-mini accent-purple"><div class="star-row">★★★★★</div><p>"간호조무사 지원은 자소서가 더 어렵다고 느꼈는데, 환자 응대와 책임감을 중심으로 풀어주셔서 방향이 잡혔어요."</p><div class="review-mini-meta"><div class="review-mini-avatar">윤</div><div class="review-mini-info"><strong>윤소라</strong><span>간호조무사 지원 준비</span></div></div></div>
+          <div class="review-mini accent-blue"><div class="star-row">★★★★★</div><p>"병원마다 원하는 인재상이 다르다는 걸 처음 알았어요. 같은 경험도 어디를 강조해야 하는지 달라져서 훨씬 설득력이 생겼습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">강</div><div class="review-mini-info"><strong>강나현</strong><span>대학병원 지원 전략 수립</span></div></div></div>
+          <div class="review-mini"><div class="star-row">★★★★★</div><p>"이직 사유를 말하면 부정적으로 들릴까 걱정했는데, 퇴사 이유와 지원 이유를 분리해서 설명하는 방식이 정말 유용했습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">신</div><div class="review-mini-info"><strong>신가영</strong><span>경력 간호사 면접 코칭</span></div></div></div>
+          <div class="review-mini accent-blue"><div class="star-row">★★★★★</div><p>"면접에서 긴장하면 짧게 끊어 말했는데, 질문별 핵심 키워드가 정리되니까 훨씬 안정적으로 말할 수 있었어요."</p><div class="review-mini-meta"><div class="review-mini-avatar">임</div><div class="review-mini-info"><strong>임서윤</strong><span>종합병원 최종 면접 대비</span></div></div></div>
+          <div class="review-mini"><div class="star-row">★★★★★</div><p>"이력서가 단순 경력 나열처럼 보여서 고민이었는데, 병동 경험이 어떤 강점인지 보이게 바뀌었습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">오</div><div class="review-mini-info"><strong>오다은</strong><span>경력 이직용 이력서 정리</span></div></div></div>
+          <div class="review-mini accent-purple"><div class="star-row">★★★★★</div><p>"간호조무사 지원은 자소서가 더 어렵다고 느꼈는데, 환자 응대와 책임감을 중심으로 풀어주셔서 방향이 잡혔어요."</p><div class="review-mini-meta"><div class="review-mini-avatar">윤</div><div class="review-mini-info"><strong>윤소라</strong><span>간호조무사 지원 준비</span></div></div></div>
+        </div>
+        <div class="review-marquee-row">
+          <div class="review-mini accent-purple"><div class="star-row">★★★★★</div><p>"1분 자기소개를 외우기만 했는데, 왜 이 병원인지까지 자연스럽게 이어지도록 바꿔주셔서 말하기가 훨씬 수월해졌습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">류</div><div class="review-mini-info"><strong>류다인</strong><span>대학병원 면접 준비</span></div></div></div>
+          <div class="review-mini"><div class="star-row">★★★★★</div><p>"실수 경험 질문이 가장 무서웠는데, 변명처럼 들리지 않게 답변을 만드는 법을 배워서 훨씬 안정됐어요."</p><div class="review-mini-meta"><div class="review-mini-avatar">문</div><div class="review-mini-info"><strong>문유정</strong><span>면접 질문 대응 훈련</span></div></div></div>
+          <div class="review-mini accent-blue"><div class="star-row">★★★★★</div><p>"지원 병원마다 문항은 비슷해도 강조 포인트가 다르다는 걸 알게 되면서, 복붙식 지원에서 벗어날 수 있었습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">배</div><div class="review-mini-info"><strong>배지수</strong><span>병원별 맞춤 지원서 작성</span></div></div></div>
+          <div class="review-mini"><div class="star-row">★★★★★</div><p>"병원 취업 준비가 막막했는데, 뭘 먼저 해야 할지 순서가 정리된 것만으로도 부담이 많이 줄었습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">전</div><div class="review-mini-info"><strong>전소민</strong><span>신입 지원 준비 로드맵</span></div></div></div>
+          <div class="review-mini accent-purple"><div class="star-row">★★★★★</div><p>"자소서와 면접을 따로 준비하지 않고 같이 보니까, 답변이 훨씬 자연스럽게 이어졌어요. 이 점이 가장 만족스러웠습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">장</div><div class="review-mini-info"><strong>장예린</strong><span>통합 코칭 만족 후기</span></div></div></div>
+          <div class="review-mini accent-purple"><div class="star-row">★★★★★</div><p>"1분 자기소개를 외우기만 했는데, 왜 이 병원인지까지 자연스럽게 이어지도록 바꿔주셔서 말하기가 훨씬 수월해졌습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">류</div><div class="review-mini-info"><strong>류다인</strong><span>대학병원 면접 준비</span></div></div></div>
+          <div class="review-mini"><div class="star-row">★★★★★</div><p>"실수 경험 질문이 가장 무서웠는데, 변명처럼 들리지 않게 답변을 만드는 법을 배워서 훨씬 안정됐어요."</p><div class="review-mini-meta"><div class="review-mini-avatar">문</div><div class="review-mini-info"><strong>문유정</strong><span>면접 질문 대응 훈련</span></div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ FAQ ══ -->
+    <section class="faq-band">
+      <div class="wrap">
+        <div style="max-width:780px;margin:0 auto;">
+          <div class="faq-title">자주 묻는 질문</div>
+          <details open>
+            <summary>간호학과 졸업예정자나 신입도 코칭을 받을 수 있나요? <span class="faq-arrow">▾</span></summary>
+            <p>가능합니다. 실무 경력이 많지 않아도 실습 경험, 학교 활동, 지원 동기를 병원 채용 문항에 맞게 정리하는 방식으로 준비합니다. 신입 지원자일수록 자기소개서와 면접 답변의 흐름을 함께 잡는 것이 중요합니다.</p>
+          </details>
+          <details>
+            <summary>자기소개서만, 면접만 따로 받을 수도 있나요? <span class="faq-arrow">▾</span></summary>
+            <p>가능하지만 병원 취업은 서류와 면접 메시지가 이어져야 해서 통합 코칭을 권장합니다. 일정이 촉박하다면 우선순위를 정해 자소서 중심 또는 면접 중심으로 진행할 수도 있습니다.</p>
+          </details>
+          <details>
+            <summary>간호조무사 지원에도 도움이 되나요? <span class="faq-arrow">▾</span></summary>
+            <p>도움이 됩니다. 간호조무사 지원에서는 경력, 환자 응대 경험, 책임감, 조직 적응력을 어떻게 표현하느냐가 중요합니다. 병원 유형에 맞게 강점을 다시 정리해 드립니다.</p>
+          </details>
+          <details>
+            <summary>공백기가 있어도 지원 전략을 세울 수 있나요? <span class="faq-arrow">▾</span></summary>
+            <p>가능합니다. 공백기를 숨기기보다 어떤 이유였는지, 그 기간 이후 왜 다시 병원 업무로 복귀하려는지 흐름을 정리하는 것이 중요합니다. 이 부분을 면접 답변까지 함께 연결해 준비합니다.</p>
+          </details>
+          <details>
+            <summary>어떤 병원 지원에 활용할 수 있나요? <span class="faq-arrow">▾</span></summary>
+            <p>대학병원, 상급종합병원, 종합병원, 요양병원, 의원급 기관, 검진센터 등 대부분의 병원 지원에 활용할 수 있습니다. 지원하는 기관의 특성에 따라 자기소개서와 면접 포인트를 다르게 설계합니다.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ CTA ══ -->
+    <section class="cta-band" id="cta">
+      <div class="wrap">
+        <div class="cta-inner">
+          <div class="cta-badge">간호사/간호조무사 병원 취업 코칭</div>
+          <h2>자기소개서·이력서·면접,<br>한 번에 정리하세요</h2>
+          <p>병원 취업은 문항 몇 개를 잘 쓰는 문제가 아닙니다.<br>지원 병원에 맞는 메시지를 한 흐름으로 정리해 면접까지 연결해야 합니다.</p>
+          <a class="btn-primary" href="mailto:biglinkerkor@gmail.com" style="margin:0 auto;display:inline-flex;">무료 상담 신청하기 →</a>
+          <div class="cta-contact">
+            <div class="cta-contact-item">📞 <strong>02-2039-8584</strong></div>
+            <div class="cta-contact-item">✉️ <strong>biglinkerkor@gmail.com</strong></div>
+            <div class="cta-contact-item">📍 서울특별시 금천구 디지털로9길 32, B동 1901호</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ══ FOOTER ══ -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div>
+          <div class="footer-logo">BigLinker</div>
+          <p class="footer-brand-desc">입시·대학원·학업계획서·논문·면접 코칭 전문<br>간호사·간호조무사 병원 취업 준비도 빅링커와 함께합니다.</p>
+          <div class="footer-sns">
+            <button class="footer-sns-btn" aria-label="Instagram">IG</button>
+            <button class="footer-sns-btn" aria-label="YouTube">YT</button>
+            <button class="footer-sns-btn" aria-label="Blog">BL</button>
+          </div>
+        </div>
+        <div class="footer-nav-grid">
+          <div class="footer-nav-group">
+            <h4>서비스</h4>
+            <a href="./admissions.html">대입코칭</a>
+            <a href="./self-introduction.html">페이퍼코칭</a>
+            <a href="./interview-coaching.html">면접코칭</a>
+            <a href="./thesis-coaching.html">논문코칭</a>
+            <a href="./ec-coaching.html">EC코칭</a>
+            <a href="./design-coaching.html">디자인코칭</a>
+            <a href="./career-coaching.html">취업코칭</a>
+            <a href="./hospital-job-coaching.html">병원취업코칭</a>
+          </div>
+          <div class="footer-nav-group">
+            <h4>리소스</h4>
+            <a href="#">블로그</a>
+            <a href="#">리얼 TIP</a>
+            <a href="#">합격 사례</a>
+            <a href="#">무료 가이드</a>
+          </div>
+          <div class="footer-nav-group">
+            <h4>회사</h4>
+            <a href="#">빅링커 소개</a>
+            <a href="#">코치 소개</a>
+            <a href="#">이용 약관</a>
+            <a href="#">개인정보처리방침</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-legal">© 2026 BigLinker. All rights reserved.<br>사업자등록번호: 000-00-00000 | 대표: 빅링커 | 서울특별시 금천구 디지털로9길 32, B동 1901호</div>
+        <div class="footer-policy-links">
+          <a href="#">이용약관</a>
+          <a href="#">개인정보처리방침</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Mobile CTA -->
+  <div class="mobile-floating-cta">
+    <div>
+      <strong>병원 취업 코칭</strong>
+      <span>지금 무료 상담 신청하기</span>
+    </div>
+    <a class="btn-primary" href="#cta" style="min-height:40px;padding:0 18px;font-size:13px;flex-shrink:0;">신청 →</a>
+  </div>
+
+  <script>
+    const topShell = document.getElementById('topShell');
+    let lastY = 0;
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      if (y > 220 && y > lastY) topShell.classList.add('is-collapsed');
+      else topShell.classList.remove('is-collapsed');
+      lastY = y;
+    }, { passive: true });
+  </script>
+</body>
+</html>

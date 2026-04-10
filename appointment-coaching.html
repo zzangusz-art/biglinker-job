@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BigLinker 임용 코칭</title>
+  <style>
+    :root {
+      --header-bg: #f6f7fb; --header-surface: #ffffff; --header-line: #e5e8ef;
+      --header-line-strong: #d7dbe5; --header-text: #17191f; --header-muted: #6e7687;
+      --bg: #0b0e13; --bg-soft: #121722; --bg-dark: #090c11; --panel: #f5f6fb;
+      --text: #f6f7fb; --muted: rgba(255,255,255,0.66); --muted-dark: #5d6473;
+      --brand: #4a68ff; --brand-2: #7f92ff; --brand-soft: #eef0ff;
+      --max: 1320px; --radius-xl: 28px; --radius-lg: 22px; --radius-md: 18px;
+      --radius-sm: 12px; --radius-xs: 8px;
+      --shadow: 0 24px 60px rgba(0,0,0,0.28); --shadow-card: 0 18px 36px rgba(36,46,78,0.08);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Pretendard", "Noto Sans KR", sans-serif;
+      background: radial-gradient(circle at 50% 0%, rgba(66,104,255,0.12), transparent 18%),
+        linear-gradient(180deg, #090b0f 0%, #0b0e13 32%, #0d1015 100%);
+      color: var(--text);
+    }
+    a { color: inherit; text-decoration: none; }
+    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 28px; }
+    .inner { max-width: var(--max); margin: 0 auto; padding: 0 20px; }
+
+    /* ── HEADER ── */
+    .top-shell {
+      position: sticky; top: 0; z-index: 120;
+      background: rgba(255,255,255,0.94); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--header-line);
+      transition: transform 0.28s ease, opacity 0.28s ease;
+    }
+    .top-shell.is-collapsed { transform: translateY(-100%); opacity: 0; }
+    .sticky-category-shell {
+      position: sticky; top: 0; z-index: 110;
+      background: rgba(247,248,252,0.98);
+      border-top: 1px solid #edf0f6; border-bottom: 1px solid var(--header-line);
+      backdrop-filter: blur(12px);
+    }
+    .family-bar { background: #fff; }
+    .family-outer { display: flex; justify-content: center; padding: 10px 0; }
+    .family-wrap {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 46px; padding: 4px; border: 1px solid var(--header-line-strong);
+      border-radius: 16px; background: #fff; box-shadow: 0 4px 16px rgba(32,43,73,0.08);
+      overflow-x: auto; scrollbar-width: none; white-space: nowrap;
+    }
+    .family-wrap::-webkit-scrollbar, .category-tabs::-webkit-scrollbar { display: none; }
+    .family-link { flex: 0 0 auto; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 700; color: var(--header-muted); }
+    .family-link.is-active { background: var(--brand-soft); color: var(--brand); }
+    .main-header { background: #fff; }
+    .main-header-wrap { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; min-height: 78px; }
+    .header-promo {
+      justify-self: start; align-self: stretch; display: flex; align-items: center;
+      padding: 0 16px; border-radius: 0 0 14px 14px; border: 1px solid #dfe3ff; border-top: 0;
+      background: linear-gradient(180deg, #eef2ff 0%, #f6f8ff 100%);
+      color: var(--brand); font-size: 13px; font-weight: 800; white-space: nowrap;
+    }
+    .brand { display: flex; flex-direction: column; align-items: center; justify-self: center; text-align: center; gap: 6px; }
+    .brand-mark { width: 132px; height: 44px; object-fit: contain; }
+    .brand-copy span { display: block; color: var(--header-muted); font-size: 12px; line-height: 1.45; }
+    .header-actions { display: flex; align-items: center; justify-self: end; gap: 8px; }
+    .cta-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--brand); background: var(--brand); color: #fff; font-weight: 700; font-size: 13px; }
+    .category-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 58px; gap: 12px; }
+    .category-balance { justify-self: start; width: 120px; }
+    .category-tabs { display: flex; align-items: center; justify-content: center; gap: 2px; overflow-x: auto; scrollbar-width: none; white-space: nowrap; }
+    .category-tab { flex: 0 0 auto; position: relative; padding: 0 16px; min-height: 48px; display: inline-flex; align-items: center; font-size: 14px; font-weight: 700; color: var(--header-muted); }
+    .category-tab.is-active { color: var(--brand); }
+    .category-tab.is-active::after { content: ""; position: absolute; left: 16px; right: 16px; bottom: 0; height: 3px; background: var(--brand); border-radius: 999px; }
+    .category-utility { display: flex; align-items: center; justify-self: end; gap: 6px; width: 240px; }
+    .utility-link { display: inline-flex; align-items: center; min-height: 28px; padding: 0 10px; border-radius: 999px; border: 1px solid #e4e7ef; background: #f8f9fc; color: #6f7786; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .utility-link:hover { background: var(--brand-soft); color: var(--brand); }
+
+    /* ── SECTION BASE ── */
+    .section-eyebrow { display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.36); margin-bottom: 18px; }
+    .section-eyebrow::before { content: ""; width: 28px; height: 2px; background: currentColor; flex-shrink: 0; }
+    .section-eyebrow.center { justify-content: center; }
+    .section-eyebrow.center::before { display: none; }
+    .section-light .section-eyebrow, .section-panel .section-eyebrow { color: var(--brand); }
+    .section-light { background: #fff; padding: 100px 0; }
+    .section-panel { background: var(--panel); padding: 100px 0; }
+    .section-dark {
+      padding: 110px 0;
+      --header-text: var(--text); --header-muted: var(--muted); --brand-soft: rgba(74,104,255,0.12);
+    }
+    .section-dark .light-card { --header-text: #17191f; --header-muted: #6e7687; --brand-soft: #eef0ff; }
+    .sec-h2 { font-size: clamp(22px,2.8vw,36px); font-weight: 700; letter-spacing: -0.045em; line-height: 1.3; }
+
+    /* ── HERO ── */
+    .hero { padding: 88px 0 68px; text-align: center; }
+    .hero-kicker { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(127,146,255,0.3); background: rgba(74,104,255,0.1); font-size: 12px; font-weight: 700; color: var(--brand-2); margin-bottom: 28px; }
+    .hero h1 { max-width: 780px; margin: 0 auto 20px; font-size: clamp(30px,4.6vw,60px); line-height: 1.14; letter-spacing: -0.05em; font-weight: 700; color: var(--text); }
+    .hero h1 em { color: var(--brand-2); font-style: normal; }
+    .hero p { max-width: 560px; margin: 0 auto 36px; color: var(--muted); font-size: 15px; line-height: 1.8; }
+    .hero-actions { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin-bottom: 52px; }
+    .btn-primary { display: inline-flex; align-items: center; justify-content: center; min-height: 54px; padding: 0 28px; border-radius: 13px; font-size: 15px; font-weight: 700; background: var(--brand); color: #fff; box-shadow: 0 10px 28px rgba(74,104,255,0.28); transition: transform 0.2s; }
+    .btn-primary:hover { transform: translateY(-2px); }
+    .btn-secondary { display: inline-flex; align-items: center; justify-content: center; min-height: 54px; padding: 0 24px; border-radius: 13px; font-size: 15px; font-weight: 700; border: 1.5px solid rgba(255,255,255,0.22); color: var(--text); background: rgba(255,255,255,0.06); transition: transform 0.2s; }
+    .btn-secondary:hover { transform: translateY(-2px); }
+    .hero-stats { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
+    .hero-stat { text-align: center; }
+    .hero-stat .s-num { font-size: 32px; font-weight: 900; color: var(--brand-2); letter-spacing: -0.04em; line-height: 1; }
+    .hero-stat .s-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* ── 채용 변화 ── */
+    .trend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+    .trend-left h2 { margin-bottom: 16px; }
+    .trend-left p { font-size: 14.5px; color: var(--muted); line-height: 1.85; margin-bottom: 20px; }
+    .trend-flow { display: flex; align-items: center; gap: 12px; padding: 20px; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.04); margin-bottom: 20px; flex-wrap: wrap; }
+    .trend-box { flex: 1; min-width: 100px; text-align: center; }
+    .trend-box .t-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.4); margin-bottom: 6px; }
+    .trend-box .t-val { font-size: 13px; color: var(--muted); line-height: 1.55; }
+    .trend-arrow { color: var(--brand-2); font-size: 18px; flex-shrink: 0; }
+    .eval-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .eval-card { padding: 20px 18px; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.04); }
+    .eval-card .e-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .eval-card p { font-size: 12.5px; color: var(--muted); line-height: 1.65; margin: 0; }
+
+    /* ── WHY ── */
+    .why-4grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .why-card { padding: 28px 24px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.04); }
+    .why-card .w-icon { width: 44px; height: 44px; border-radius: 12px; background: rgba(74,104,255,0.15); border: 1px solid rgba(74,104,255,0.28); display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 16px; }
+    .why-card h3 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .why-card p { font-size: 13px; color: var(--muted); line-height: 1.7; margin: 0; }
+
+    /* ── FOR WHO ── */
+    .who-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .who-card { padding: 28px 22px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.04); }
+    .who-card .wc-tag { display: inline-flex; align-items: center; min-height: 26px; padding: 0 12px; border-radius: 999px; background: rgba(74,104,255,0.15); border: 1px solid rgba(74,104,255,0.3); font-size: 11px; font-weight: 800; color: var(--brand-2); margin-bottom: 14px; }
+    .who-card h3 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+    .who-card ul { list-style: none; display: grid; gap: 7px; }
+    .who-card ul li { display: flex; align-items: flex-start; gap: 7px; font-size: 13px; color: var(--muted); line-height: 1.65; }
+    .who-card ul li::before { content: "•"; color: var(--brand-2); flex-shrink: 0; font-size: 12px; margin-top: 2px; }
+
+    /* ── 비교표 (LIGHT) ── */
+    .compare-table { width: 100%; border-collapse: separate; border-spacing: 0; border-radius: var(--radius-md); overflow: hidden; border: 1px solid #e7ebf3; }
+    .compare-table th { padding: 16px 22px; font-size: 13px; font-weight: 800; text-align: center; }
+    .compare-table th:first-child { text-align: left; background: #f8f9fc; color: var(--header-muted); width: 130px; }
+    .compare-table th.ours { background: var(--brand); color: #fff; }
+    .compare-table th.theirs { background: #f0f1f7; color: var(--header-muted); }
+    .compare-table td { padding: 15px 22px; font-size: 13.5px; border-top: 1px solid #edf0f6; text-align: center; vertical-align: middle; line-height: 1.6; }
+    .compare-table td:first-child { text-align: left; background: #fafbfc; color: var(--header-muted); font-size: 12px; font-weight: 700; }
+    .compare-table td.ours { background: rgba(74,104,255,0.06); color: var(--header-text); font-weight: 600; }
+    .compare-table td.theirs { color: #a0a8b8; }
+    .compare-note { text-align: center; font-size: 13px; color: var(--header-muted); margin-top: 20px; font-style: italic; }
+
+    /* ── 4단계 프로세스 (DARK) ── */
+    .process-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; position: relative; }
+    .process-grid::before { content: ""; position: absolute; top: 40px; left: 12.5%; right: 12.5%; height: 2px; background: rgba(74,104,255,0.25); z-index: 0; }
+    .process-item { position: relative; z-index: 1; text-align: center; padding: 0 10px; }
+    .proc-circle { width: 80px; height: 80px; border-radius: 999px; background: var(--bg-soft); border: 2px solid rgba(74,104,255,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; margin: 0 auto 18px; }
+    .proc-circle.active { background: var(--brand); border-color: var(--brand); }
+    .proc-step { font-size: 10px; font-weight: 800; letter-spacing: 0.06em; color: var(--brand-2); }
+    .proc-circle.active .proc-step { color: rgba(255,255,255,0.8); }
+    .proc-num { font-size: 20px; font-weight: 900; color: var(--text); line-height: 1; }
+    .process-item h3 { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+    .process-item ul { list-style: none; display: grid; gap: 5px; }
+    .process-item ul li { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+    /* ── 4주 커리큘럼 (PANEL) ── */
+    .week-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .week-card { padding: 26px 20px; border-radius: var(--radius-md); border: 1px solid #e7ebf3; background: #fff; box-shadow: var(--shadow-card); }
+    .week-card.highlight { background: var(--brand); border-color: var(--brand); }
+    .week-tag { display: inline-flex; align-items: center; min-height: 22px; padding: 0 10px; border-radius: 999px; background: var(--brand-soft); color: var(--brand); font-size: 10px; font-weight: 800; letter-spacing: 0.06em; margin-bottom: 10px; }
+    .week-card.highlight .week-tag { background: rgba(255,255,255,0.25); color: #fff; }
+    .week-card h3 { font-size: 14px; font-weight: 700; color: var(--header-text); margin-bottom: 12px; line-height: 1.35; }
+    .week-card.highlight h3 { color: #fff; }
+    .week-list { display: grid; gap: 6px; list-style: none; }
+    .week-list li { font-size: 12px; color: var(--header-muted); line-height: 1.6; display: flex; align-items: flex-start; gap: 6px; }
+    .week-list li::before { content: "—"; color: var(--brand); flex-shrink: 0; font-size: 11px; margin-top: 1px; }
+    .week-card.highlight .week-list li { color: rgba(255,255,255,0.8); }
+    .week-card.highlight .week-list li::before { color: rgba(255,255,255,0.5); }
+    .week-output { display: flex; align-items: center; gap: 6px; margin-top: 16px; padding-top: 12px; border-top: 1px solid #edf0f6; font-size: 11px; font-weight: 700; color: var(--brand); }
+    .week-card.highlight .week-output { border-top-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.85); }
+
+    /* ── 직무별 분야 (DARK) ── */
+    .domain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .domain-card { padding: 24px 22px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.04); }
+    .domain-card .d-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .domain-card .d-icon { width: 36px; height: 36px; border-radius: 9px; background: rgba(74,104,255,0.15); border: 1px solid rgba(74,104,255,0.28); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .domain-card h3 { font-size: 14px; font-weight: 700; color: var(--text); }
+    .domain-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .domain-tag { display: inline-flex; align-items: center; min-height: 24px; padding: 0 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); font-size: 11.5px; color: var(--muted); }
+
+    /* ── 성공 사례 (LIGHT) ── */
+    .case-intro { display: grid; grid-template-columns: 1fr 1.4fr; gap: 40px; align-items: start; margin-bottom: 40px; }
+    .ba-box { padding: 26px 24px; border-radius: var(--radius-md); }
+    .ba-box.before { border: 1px solid #e7ebf3; background: #fff; box-shadow: var(--shadow-card); }
+    .ba-box.after { background: var(--brand); }
+    .ba-label { font-size: 11px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
+    .ba-box.before .ba-label { color: var(--header-muted); }
+    .ba-box.after .ba-label { color: rgba(255,255,255,0.7); }
+    .ba-list { display: grid; gap: 8px; }
+    .ba-item { display: flex; align-items: flex-start; gap: 7px; font-size: 13px; line-height: 1.65; }
+    .ba-box.before .ba-item { color: var(--header-muted); }
+    .ba-box.after .ba-item { color: rgba(255,255,255,0.9); }
+    .ba-dot { flex-shrink: 0; width: 6px; height: 6px; border-radius: 999px; margin-top: 7px; }
+    .ba-box.before .ba-dot { background: #cbd5e1; }
+    .ba-box.after .ba-dot { background: rgba(255,255,255,0.5); }
+    .case-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .case-card { padding: 22px 20px; border-radius: var(--radius-sm); border: 1px solid #e7ebf3; background: #fff; box-shadow: var(--shadow-card); }
+    .case-badge { display: inline-flex; align-items: center; min-height: 22px; padding: 0 10px; border-radius: 999px; background: var(--brand-soft); color: var(--brand); font-size: 11px; font-weight: 800; margin-bottom: 10px; }
+    .case-card p { font-size: 13px; color: var(--header-muted); line-height: 1.7; }
+    .case-card .c-result { font-size: 12px; font-weight: 700; color: var(--brand); margin-top: 10px; }
+
+    /* ── REVIEW MARQUEE ── */
+    .review-band { padding: 110px 0 130px; background: #0b0e13; }
+    .review-band-head { text-align: center; margin-bottom: 46px; }
+    .review-band-head h2 { font-size: clamp(24px,3vw,40px); font-weight: 700; line-height: 1.24; letter-spacing: -0.045em; color: var(--text); margin-bottom: 10px; }
+    .review-band-head p { font-size: 15px; color: var(--muted); }
+    .review-marquee-wrap { width: 100vw; position: relative; left: 50%; margin-left: -50vw; overflow: hidden; display: flex; flex-direction: column; gap: 14px; padding: 8px 0 4px; }
+    .review-marquee-row { display: flex; gap: 14px; width: max-content; }
+    .review-marquee-row:nth-child(1) { animation: rmq-ltr 38s linear infinite; }
+    .review-marquee-row:nth-child(2) { animation: rmq-rtl 55s linear infinite; }
+    .review-marquee-row:nth-child(3) { animation: rmq-ltr 46s linear infinite; }
+    @keyframes rmq-ltr { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    @keyframes rmq-rtl { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }
+    .review-mini { flex-shrink: 0; padding: 20px 22px 16px; border-radius: 18px; background: rgba(255,255,255,0.055); border: 1px solid rgba(255,255,255,0.09); display: flex; flex-direction: column; }
+    .review-mini:nth-child(4n+1) { width: 280px; } .review-mini:nth-child(4n+2) { width: 340px; } .review-mini:nth-child(4n+3) { width: 260px; } .review-mini:nth-child(4n+4) { width: 320px; }
+    .review-mini.accent-blue { background: rgba(74,104,255,0.10); border-color: rgba(74,104,255,0.25); }
+    .review-mini.accent-purple { background: rgba(167,139,250,0.10); border-color: rgba(167,139,250,0.22); }
+    .review-mini p { margin: 8px 0 auto; font-size: 13.5px; color: rgba(255,255,255,0.78); line-height: 1.7; flex: 1; }
+    .review-mini-meta { display: flex; align-items: center; gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.07); }
+    .review-mini-avatar { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg,#4a68ff,#a78bfa); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #fff; }
+    .review-mini.accent-blue .review-mini-avatar { background: linear-gradient(135deg,#2563eb,#4a68ff); }
+    .review-mini.accent-purple .review-mini-avatar { background: linear-gradient(135deg,#7c3aed,#a78bfa); }
+    .review-mini-info strong { display: block; font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.9); }
+    .review-mini-info span { font-size: 10px; color: #7f92ff; font-weight: 600; }
+    .star-row { color: #f59e0b; font-size: 13px; margin-bottom: 8px; }
+
+    /* ── FAQ ── */
+    .faq-band { padding: 100px 0; background: var(--bg-soft); }
+    .faq-title { font-size: clamp(22px,2.5vw,34px); font-weight: 700; letter-spacing: -0.04em; line-height: 1.3; color: var(--text); margin-bottom: 40px; text-align: center; }
+    details { border-bottom: 1px solid rgba(255,255,255,0.08); }
+    summary { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; cursor: pointer; list-style: none; font-size: 15px; font-weight: 600; color: var(--text); }
+    summary::-webkit-details-marker { display: none; }
+    .faq-arrow { font-size: 18px; color: var(--brand-2); transition: transform 0.2s; flex-shrink: 0; }
+    details[open] .faq-arrow { transform: rotate(180deg); }
+    details p { padding: 0 0 22px; color: var(--muted); font-size: 14px; line-height: 1.8; }
+
+    /* ── CTA ── */
+    .cta-band { padding: 120px 0; background: radial-gradient(ellipse at 50% 0%, rgba(74,104,255,0.24), transparent 70%); }
+    .cta-inner { max-width: 700px; margin: 0 auto; text-align: center; }
+    .cta-badge { display: inline-flex; align-items: center; min-height: 28px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(127,146,255,0.4); background: rgba(127,146,255,0.1); font-size: 12px; font-weight: 700; color: var(--brand-2); margin-bottom: 20px; }
+    .cta-inner h2 { font-size: clamp(26px,3.2vw,44px); font-weight: 700; line-height: 1.25; letter-spacing: -0.045em; color: var(--text); margin-bottom: 16px; }
+    .cta-inner p { font-size: 15px; color: var(--muted); line-height: 1.8; margin-bottom: 36px; }
+    .cta-contact { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; margin-top: 28px; }
+    .cta-contact-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: rgba(255,255,255,0.55); }
+    .cta-contact-item strong { color: rgba(255,255,255,0.9); font-weight: 700; }
+
+    /* ── FOOTER ── */
+    .site-footer { background: var(--bg-dark); border-top: 1px solid rgba(255,255,255,0.06); }
+    .footer-inner { max-width: var(--max); margin: 0 auto; padding: 0 28px; }
+    .footer-top { display: grid; grid-template-columns: 280px 1fr; gap: 60px; padding: 60px 0 40px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .footer-logo { font-size: 18px; font-weight: 900; color: var(--brand-2); margin-bottom: 12px; }
+    .footer-brand-desc { font-size: 13px; color: var(--muted-dark); line-height: 1.75; margin: 0 0 16px; }
+    .footer-sns { display: flex; gap: 8px; }
+    .footer-sns-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: var(--muted-dark); font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .footer-nav-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+    .footer-nav-group h4 { font-size: 12px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 14px; }
+    .footer-nav-group a { display: block; font-size: 13px; color: var(--muted-dark); margin-bottom: 10px; font-weight: 500; }
+    .footer-nav-group a:hover { color: var(--brand-2); }
+    .footer-bottom { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; gap: 16px; }
+    .footer-legal { font-size: 12px; color: var(--muted-dark); line-height: 1.7; }
+    .footer-policy-links { display: flex; gap: 16px; }
+    .footer-policy-links a { font-size: 12px; color: var(--muted-dark); font-weight: 600; }
+
+    /* ── MOBILE ── */
+    .mobile-floating-cta { display: none; position: fixed; bottom: 20px; left: 16px; right: 16px; border-radius: 16px; background: var(--brand); padding: 14px 18px; box-shadow: 0 16px 40px rgba(74,104,255,0.4); align-items: center; gap: 12px; z-index: 900; }
+    .mobile-floating-cta strong { display: block; font-size: 14px; font-weight: 800; color: #fff; }
+    .mobile-floating-cta span { font-size: 12px; color: rgba(255,255,255,0.75); }
+
+    @media (max-width: 760px) {
+      .wrap, .inner { padding: 0 16px; }
+      .main-header-wrap, .category-row { grid-template-columns: 1fr; }
+      .header-promo, .header-actions, .category-balance { display: none; }
+      .brand { justify-self: center; }
+      .category-utility { width: auto; overflow-x: auto; scrollbar-width: none; white-space: nowrap; padding-bottom: 8px; }
+      .mobile-floating-cta { display: flex; }
+      .trend-grid { grid-template-columns: 1fr; gap: 32px; }
+      .eval-grid { grid-template-columns: 1fr; }
+      .why-4grid { grid-template-columns: 1fr; }
+      .who-cols { grid-template-columns: 1fr; }
+      .process-grid { grid-template-columns: 1fr 1fr; }
+      .process-grid::before { display: none; }
+      .week-grid { grid-template-columns: 1fr 1fr; }
+      .domain-grid { grid-template-columns: 1fr; }
+      .case-intro { grid-template-columns: 1fr; }
+      .case-cards { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr; gap: 32px; }
+      .footer-nav-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══ HEADER ══ -->
+  <div class="top-shell" id="topShell">
+    <div class="family-bar">
+      <div class="inner">
+        <div class="family-outer">
+          <div class="family-wrap">
+            <a class="family-link" href="https://biglinker-transfer.vercel.app/">대학&편입</a>
+            <a class="family-link" href="https://biglinker-graduate.vercel.app/">대학원&논문</a>
+            <a class="family-link is-active" href="https://biglinker-job.vercel.app/">취업</a>
+            <a class="family-link" href="https://biglinker-biz.vercel.app/">기업교육</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <header class="main-header">
+      <div class="inner">
+        <div class="main-header-wrap">
+          <div class="header-promo">자소서·이력서·면접 통합 코칭</div>
+          <a class="brand" href="./index.html">
+            <img class="brand-mark" src="./biglinker-logo.png" alt="빅링커 로고">
+            <div class="brand-copy"><span>입시·대학원·학업계획서·논문·면접 코칭 전문</span></div>
+          </a>
+          <div class="header-actions"><a class="cta-btn" href="#cta">상담 신청</a></div>
+        </div>
+      </div>
+    </header>
+  </div>
+
+  <div class="sticky-category-shell">
+    <div class="inner">
+      <div class="category-row">
+        <div class="category-balance" aria-hidden="true"></div>
+        <nav class="category-tabs" aria-label="서비스 카테고리">
+          <a class="category-tab" href="./career-coaching.html">기업취업코칭</a>
+          <a class="category-tab" href="./hospital-job-coaching.html">병원취업코칭</a>
+          <a class="category-tab" href="./appointment-coaching.html">임용코치</a>
+        </nav>
+        <div class="category-utility">
+          <button class="utility-link" type="button">블로그</button>
+          <button class="utility-link" type="button">리얼 TIP</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main>
+
+    <!-- ══ HERO ══ -->
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero-kicker">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#7f92ff" stroke-width="1.4"/><path d="M4.5 7l2 2 3-3" stroke="#7f92ff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          TEACHER APPOINTMENT COACHING
+        </div>
+        <h1>교직논술 &amp; 모의면접<br><em>코칭 프로그램</em></h1>
+        <p>임용 준비생이 실제로 원하는 논술 대비와 면접 훈련을 한 흐름으로 설계합니다.<br>출제 경향, 채점 기준, 실전 피드백까지 빠르게 연결합니다.</p>
+        <div class="hero-actions">
+          <a class="btn-primary" href="#cta">상담 신청하기 →</a>
+          <a class="btn-secondary" href="#process">운영 프로세스 보기</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="s-num">1:1</div><div class="s-label">실질적인 맞춤 코칭</div></div>
+          <div class="hero-stat"><div class="s-num">48H</div><div class="s-label">빠른 피드백 회신</div></div>
+          <div class="hero-stat"><div class="s-num">Zoom</div><div class="s-label">실시간 설명 및 질의응답</div></div>
+          <div class="hero-stat"><div class="s-num">실전형</div><div class="s-label">최신 출제 경향 반영</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ WHAT CANDIDATES WANT ══ -->
+    <section class="section-dark" id="why-now">
+      <div class="wrap">
+        <div class="trend-grid">
+          <div class="trend-left">
+            <div class="section-eyebrow">What Candidates Want</div>
+            <h2 class="sec-h2" style="color:var(--text);margin-bottom:16px;">임용 준비생이 원하는 것</h2>
+            <p>좋은 교재만으로는 부족합니다. 실제 채점 기준을 이해하고, 예상 문제를 써보고, 빠르게 피드백을 받아야 논술과 면접 준비가 실전으로 이어집니다.</p>
+            <div class="trend-flow">
+              <div class="trend-box">
+                <div class="t-label">논술</div>
+                <div class="t-val">실전형 논술 역량<br>강화</div>
+              </div>
+              <div class="trend-arrow">→</div>
+              <div class="trend-box">
+                <div class="t-label">출제</div>
+                <div class="t-val">최신 출제 경향<br>완벽 반영</div>
+              </div>
+              <div class="trend-arrow">→</div>
+              <div class="trend-box">
+                <div class="t-label">코칭</div>
+                <div class="t-val" style="color:var(--brand-2);font-weight:700;">빠르고 디테일한<br>1:1 피드백</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p style="font-size:14px;color:var(--muted);margin-bottom:18px;">핵심 수요를 네 가지로 정리하면</p>
+            <div class="eval-grid">
+              <div class="eval-card">
+                <div class="e-title">실전형 논술 역량 강화</div>
+                <p>제한 시간 안에 구조와 논리를 잡는 훈련이 필요합니다.</p>
+              </div>
+              <div class="eval-card">
+                <div class="e-title">최신 출제 경향 반영</div>
+                <p>최근 유형과 평가 포인트를 그대로 연습해야 합니다.</p>
+              </div>
+              <div class="eval-card">
+                <div class="e-title">빠르고 디테일한 피드백</div>
+                <p>틀린 이유와 개선 포인트가 분명해야 반복 실수를 줄일 수 있습니다.</p>
+              </div>
+              <div class="eval-card">
+                <div class="e-title">실질적인 1:1 맞춤 코칭</div>
+                <p>개인별 약점에 맞춘 해설과 보완 전략이 필요합니다.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ CORE VALUE ══ -->
+    <section class="section-dark" id="why-us">
+      <div class="wrap">
+        <div class="section-eyebrow center">Core Value</div>
+        <h2 class="sec-h2" style="color:var(--text);text-align:center;margin-bottom:12px;">임용 논술 코칭의<br>핵심 가치와 차별화 포인트</h2>
+        <p style="text-align:center;font-size:15px;color:var(--muted);margin-bottom:44px;">점수에 직접 연결되는 기준, 피드백 방식, 접근성까지 실제 준비 과정에서 필요한 요소를 중심으로 설계합니다.</p>
+        <div class="why-4grid">
+          <div class="why-card">
+            <div class="w-icon">01</div>
+            <h3>채점 기준까지 명확히</h3>
+            <p>내용, 구조, 교육학적 용어, 문제 해결력까지 논술 채점 기준을 기준으로 구체적인 안내를 제공합니다.</p>
+          </div>
+          <div class="why-card">
+            <div class="w-icon">02</div>
+            <h3>신뢰감 &amp; 전문성</h3>
+            <p>실제 논술 채점관 시각과 공식 채점 기준을 기반으로 평가와 조언을 진행합니다.</p>
+          </div>
+          <div class="why-card">
+            <div class="w-icon">03</div>
+            <h3>회복탄력성과 반복 개선</h3>
+            <p>예상문제 제공, 1:1 맞춤 피드백, 최신 논술 경향 분석, 필요 시 Zoom 첨삭으로 실전 감각을 끌어올립니다.</p>
+          </div>
+          <div class="why-card">
+            <div class="w-icon">04</div>
+            <h3>접근성 &amp; 편의성</h3>
+            <p>온라인 시험 기반, 48시간 내 피드백, Zoom 실시간 설명과 개별 코칭으로 시간과 장소 제약을 줄입니다.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ OPERATION PROCESS ══ -->
+    <section class="section-dark" id="for-who">
+      <div class="wrap">
+        <div class="section-eyebrow center">Operation Process</div>
+        <h2 class="sec-h2" style="color:var(--text);text-align:center;margin-bottom:44px;">논술 운영 프로세스</h2>
+        <div class="who-cols">
+          <div class="who-card">
+            <div class="wc-tag">STEP 1</div>
+            <h3>예상문제 제공</h3>
+            <ul>
+              <li>최신 기출 및 예상문제 제공</li>
+              <li>유형별 해결방안과 적용사례 정리</li>
+              <li>찬반형 등 문제별 접근 안내</li>
+            </ul>
+          </div>
+          <div class="who-card">
+            <div class="wc-tag">STEP 2</div>
+            <h3>온라인 시험</h3>
+            <ul>
+              <li>시간 제한 모의 논술 진행</li>
+              <li>실제 시험 환경과 유사한 방식 적용</li>
+              <li>실전 시간 감각 훈련</li>
+            </ul>
+          </div>
+          <div class="who-card">
+            <div class="wc-tag">STEP 3-4</div>
+            <h3>피드백 및 Zoom 설명</h3>
+            <ul>
+              <li>채점 기준 기반 상세 피드백 제공</li>
+              <li>공통 해설과 개별 질의응답 진행</li>
+              <li>논술 작성법 실전 코칭 연결</li>
+            </ul>
+          </div>
+        </div>
+        <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:28px;">논술은 문제 제공, 작성, 채점, 설명이 한 사이클로 이어져야 실력이 빠르게 올라갑니다.</p>
+      </div>
+    </section>
+
+    <!-- ══ DIFFERENTIATORS (LIGHT) ══ -->
+    <section class="section-light" id="compare">
+      <div class="wrap">
+        <div class="section-eyebrow center">Differentiators</div>
+        <h2 class="sec-h2" style="color:var(--header-text);text-align:center;margin-bottom:10px;">차별화 요소</h2>
+        <p style="text-align:center;font-size:15px;color:var(--header-muted);margin-bottom:40px;">단순한 첨삭보다 점수와 직접 연결되는 구조를 제공합니다.</p>
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>구분</th>
+              <th class="theirs">기본 지원</th>
+              <th class="ours">빅링커 임용 코칭</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>피드백 기준</td>
+              <td class="theirs">일반적인 코멘트 중심</td>
+              <td class="ours">채점 기준 기반 1:1 맞춤 피드백</td>
+            </tr>
+            <tr>
+              <td>약점 관리</td>
+              <td class="theirs">회차별 단발성 피드백</td>
+              <td class="ours">개인별 약점 분석 리포트로 반복 실수 관리</td>
+            </tr>
+            <tr>
+              <td>실시간 보완</td>
+              <td class="theirs">서면 첨삭 위주</td>
+              <td class="ours">Zoom 실시간 코칭으로 즉각 피드백과 시뮬레이션 진행</td>
+            </tr>
+            <tr>
+              <td>응답 속도</td>
+              <td class="theirs">일정별 편차가 큼</td>
+              <td class="ours">48시간 내 빠른 피드백 구조</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="compare-note">"빠른 회전과 누적 분석이 있어야 논술과 면접이 동시에 올라갑니다."</p>
+      </div>
+    </section>
+
+    <!-- ══ MOCK INTERVIEW PROCESS (DARK) ══ -->
+    <section class="section-dark" id="process">
+      <div class="wrap">
+        <div class="section-eyebrow center">Mock Interview</div>
+        <h2 class="sec-h2" style="color:var(--text);text-align:center;margin-bottom:10px;">모의 면접 프로세스</h2>
+        <p style="text-align:center;font-size:15px;color:var(--muted);margin-bottom:56px;">자료 제공, Zoom 실전 면접, 개별 코멘트, 반복 연습까지 단계별로 이어집니다.</p>
+        <div class="process-grid">
+          <div class="process-item">
+            <div class="proc-circle">
+              <span class="proc-step">STEP</span>
+              <span class="proc-num">01</span>
+            </div>
+            <h3>예상문제 제공</h3>
+            <ul>
+              <li>최신 기출과 예상 문제 제공</li>
+              <li>유형별 자료와 구상 포인트 정리</li>
+              <li>자체 제작 자료 활용</li>
+            </ul>
+          </div>
+          <div class="process-item">
+            <div class="proc-circle">
+              <span class="proc-step">STEP</span>
+              <span class="proc-num">02</span>
+            </div>
+            <h3>온라인 시험/줌<br>모의면접</h3>
+            <ul>
+              <li>실제 시험 환경과 유사하게 진행</li>
+              <li>시간 제한과 응시 방식 반영</li>
+              <li>Zoom 활용 실전 면접 진행</li>
+            </ul>
+          </div>
+          <div class="process-item">
+            <div class="proc-circle">
+              <span class="proc-step">STEP</span>
+              <span class="proc-num">03</span>
+            </div>
+            <h3>피드백</h3>
+            <ul>
+              <li>개별 점수와 코멘트 제공</li>
+              <li>채점 기준 기반 상세 해설</li>
+              <li>개인별 약점 분석 리포트 정리</li>
+            </ul>
+          </div>
+          <div class="process-item">
+            <div class="proc-circle active">
+              <span class="proc-step">STEP</span>
+              <span class="proc-num">04</span>
+            </div>
+            <h3>Zoom 실시간 코칭</h3>
+            <ul>
+              <li>공통 피드백과 질의응답 진행</li>
+              <li>실전 시뮬레이션 반복 훈련</li>
+              <li>주 1회 또는 필요 시 예약제 운영</li>
+            </ul>
+          </div>
+        </div>
+        <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:40px;">필요하면 5단계로 반복 연습과 평가를 추가해 누적 피드백을 이어갈 수 있습니다.</p>
+      </div>
+    </section>
+
+    <!-- ══ PACKAGE (PANEL) ══ -->
+    <section class="section-panel" id="curriculum">
+      <div class="wrap">
+        <div class="section-eyebrow center">Package</div>
+        <h2 class="sec-h2" style="color:var(--header-text);text-align:center;margin-bottom:10px;">교직 논술 + 모의 면접 구성 예시</h2>
+        <p style="text-align:center;font-size:15px;color:var(--header-muted);margin-bottom:44px;">4~6주 과정을 기본으로, 논술과 모의면접 회차를 조합해 실전 시뮬레이션까지 포함할 수 있습니다.</p>
+        <div class="week-grid">
+          <div class="week-card">
+            <div class="week-tag">PACKAGE 01</div>
+            <h3>단일 회차<br>(논술+면접)</h3>
+            <ul class="week-list">
+              <li>논술 1회 진행</li>
+              <li>모의면접 1회 진행</li>
+              <li>기본 피드백 제공</li>
+            </ul>
+            <div class="week-output">단기 점검형 구성</div>
+          </div>
+          <div class="week-card">
+            <div class="week-tag">PACKAGE 02</div>
+            <h3>기본 패키지<br>(4주)</h3>
+            <ul class="week-list">
+              <li>논술 2회</li>
+              <li>모의면접 2회</li>
+              <li>첨삭 및 실시간 피드백 포함</li>
+            </ul>
+            <div class="week-output">4주 기본 운영</div>
+          </div>
+          <div class="week-card">
+            <div class="week-tag">PACKAGE 03</div>
+            <h3>심화 패키지<br>(6주 이상)</h3>
+            <ul class="week-list">
+              <li>논술 3회 이상</li>
+              <li>모의면접 3회 이상</li>
+              <li>1:1 코칭 및 멘토링 확장</li>
+            </ul>
+            <div class="week-output">심화형 반복 개선</div>
+          </div>
+          <div class="week-card highlight">
+            <div class="week-tag">MODE</div>
+            <h3>운영 방식</h3>
+            <ul class="week-list">
+              <li>온라인 중심 플랫폼 + Zoom</li>
+              <li>1:1과 그룹 혼합 운영 가능</li>
+              <li>피드백 중심 반복 학습</li>
+              <li>실전 시뮬레이션 포함</li>
+            </ul>
+            <div class="week-output">상황별 맞춤 편성 가능</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SUPPORT AREAS (DARK) ══ -->
+    <section class="section-dark" id="domains">
+      <div class="wrap">
+        <div class="section-eyebrow center">Support Areas</div>
+        <h2 class="sec-h2" style="color:var(--text);text-align:center;margin-bottom:10px;">임용 코칭 지원 영역</h2>
+        <p style="text-align:center;font-size:15px;color:var(--muted);margin-bottom:44px;">논술과 면접을 분리하지 않고, 출제 분석부터 개별 약점 보완까지 필요한 요소를 나눠 지원합니다.</p>
+        <div class="domain-grid">
+          <div class="domain-card">
+            <div class="d-head">
+              <div class="d-icon">📚</div>
+              <h3>문제 제공</h3>
+            </div>
+            <div class="domain-tags">
+              <span class="domain-tag">최신 기출</span>
+              <span class="domain-tag">예상문제</span>
+              <span class="domain-tag">유형별 자료</span>
+              <span class="domain-tag">해결방안</span>
+              <span class="domain-tag">적용사례</span>
+            </div>
+          </div>
+          <div class="domain-card">
+            <div class="d-head">
+              <div class="d-icon">🧠</div>
+              <h3>논술 첨삭</h3>
+            </div>
+            <div class="domain-tags">
+              <span class="domain-tag">내용</span>
+              <span class="domain-tag">구조</span>
+              <span class="domain-tag">교육학 용어</span>
+              <span class="domain-tag">논리성</span>
+              <span class="domain-tag">논점 관리</span>
+            </div>
+          </div>
+          <div class="domain-card">
+            <div class="d-head">
+              <div class="d-icon">🎤</div>
+              <h3>모의면접</h3>
+            </div>
+            <div class="domain-tags">
+              <span class="domain-tag">Zoom 면접</span>
+              <span class="domain-tag">실전 시뮬레이션</span>
+              <span class="domain-tag">조별 진행</span>
+              <span class="domain-tag">개별 진행</span>
+              <span class="domain-tag">녹화 피드백</span>
+            </div>
+          </div>
+          <div class="domain-card">
+            <div class="d-head">
+              <div class="d-icon">📈</div>
+              <h3>약점 분석</h3>
+            </div>
+            <div class="domain-tags">
+              <span class="domain-tag">반복 실수 추적</span>
+              <span class="domain-tag">논점 이탈 개선</span>
+              <span class="domain-tag">개인별 리포트</span>
+              <span class="domain-tag">누적 관리</span>
+            </div>
+          </div>
+          <div class="domain-card">
+            <div class="d-head">
+              <div class="d-icon">📌</div>
+              <h3>운영 방식</h3>
+            </div>
+            <div class="domain-tags">
+              <span class="domain-tag">온라인 시험</span>
+              <span class="domain-tag">48시간 피드백</span>
+              <span class="domain-tag">Zoom 설명</span>
+              <span class="domain-tag">1:1 맞춤 코칭</span>
+              <span class="domain-tag">그룹 병행 가능</span>
+            </div>
+          </div>
+        </div>
+        <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:32px;">필요에 따라 논술 중심, 모의면접 중심, 통합 패키지형으로 유연하게 조합할 수 있습니다.</p>
+      </div>
+    </section>
+
+    <!-- ══ EXAMPLE PACKAGE (LIGHT) ══ -->
+    <section class="section-light" id="cases">
+      <div class="wrap">
+        <div class="section-eyebrow center">Program Structure</div>
+        <h2 class="sec-h2" style="color:var(--header-text);text-align:center;margin-bottom:44px;">운영 예시와 진행 방식</h2>
+        <div class="case-intro">
+          <div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div class="ba-box before">
+                <div class="ba-label">Program</div>
+                <div class="ba-list">
+                  <div class="ba-item"><div class="ba-dot"></div>4~6주 과정으로 운영 가능</div>
+                  <div class="ba-item"><div class="ba-dot"></div>논술 2~3회 + 모의면접 2~3회</div>
+                  <div class="ba-item"><div class="ba-dot"></div>실전 시뮬레이션 포함</div>
+                </div>
+              </div>
+              <div class="ba-box after">
+                <div class="ba-label">Mode</div>
+                <div class="ba-list">
+                  <div class="ba-item"><div class="ba-dot"></div>온라인 중심 플랫폼 + Zoom</div>
+                  <div class="ba-item"><div class="ba-dot"></div>1:1과 그룹 혼합 운영 가능</div>
+                  <div class="ba-item"><div class="ba-dot"></div>피드백 중심 반복 보완</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p style="font-size:15px;color:var(--header-text);font-weight:700;margin-bottom:6px;">"단일 회차부터 심화 패키지까지, 현재 준비 상태에 맞춰 조정 가능합니다."</p>
+            <p style="font-size:14px;color:var(--header-muted);line-height:1.8;">기본 패키지는 반복 첨삭과 모의면접을 함께 경험하는 데 적합하고, 심화 패키지는 누적 피드백과 멘토링까지 연결해 약점을 지속적으로 줄이는 데 초점을 둡니다.</p>
+          </div>
+        </div>
+        <div class="case-cards">
+          <div class="case-card">
+            <div class="case-badge">단일 회차</div>
+            <p>논술 1회와 모의면접 1회를 묶어 빠르게 현재 실력을 점검하고 기본 피드백을 받는 구조입니다.</p>
+            <div class="c-result">→ 단기 진단 및 방향 설정</div>
+          </div>
+          <div class="case-card">
+            <div class="case-badge">기본 패키지</div>
+            <p>논술 2회, 모의면접 2회, 첨삭과 실시간 피드백을 통해 전형 전반을 정리하는 4주 구성입니다.</p>
+            <div class="c-result">→ 기본기 강화와 실전 적용</div>
+          </div>
+          <div class="case-card">
+            <div class="case-badge">심화 패키지</div>
+            <p>논술 3회 이상, 모의면접 3회 이상, 1:1 코칭과 멘토링으로 약점 개선을 누적 관리하는 구조입니다.</p>
+            <div class="c-result">→ 반복 훈련과 약점 보완 집중</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ REVIEW MARQUEE ══ -->
+    <section class="review-band">
+      <div class="review-band-head">
+        <h2>임용 코칭 후기</h2>
+        <p>논술과 면접을 같이 준비하면서 실전 감각을 높인 수강생들의 이야기</p>
+      </div>
+      <div class="review-marquee-wrap">
+        <div class="review-marquee-row">
+          <div class="review-mini accent-blue"><div class="star-row">★★★★★</div><p>"채점 기준을 기준으로 첨삭을 받으니까 왜 점수가 안 나왔는지 처음으로 명확히 보였습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">김</div><div class="review-mini-info"><strong>김도연</strong><span>초등 임용 논술 준비</span></div></div></div>
+          <div class="review-mini"><div class="star-row">★★★★★</div><p>"예상문제와 피드백 회전이 빨라서 답안을 계속 다시 써볼 수 있었던 점이 가장 좋았습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">이</div><div class="review-mini-info"><strong>이재은</strong><span>중등 임용 준비</span></div></div></div>
+          <div class="review-mini accent-purple"><div class="star-row">★★★★★</div><p>"Zoom 설명이 있어서 서면 피드백만 받을 때보다 훨씬 이해가 빨랐어요."</p><div class="review-mini-meta"><div class="review-mini-avatar">박</div><div class="review-mini-info"><strong>박시우</strong><span>논술 첨삭 코칭</span></div></div></div>
+          <div class="review-mini"><div class="star-row">★★★★★</div><p>"모의면접을 실제처럼 돌려보니 말의 순서와 시선 처리까지 같이 잡을 수 있었습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">최</div><div class="review-mini-info"><strong>최하린</strong><span>모의면접 패키지 수강</span></div></div></div>
+          <div class="review-mini accent-blue"><div class="star-row">★★★★★</div><p>"반복 실수 리포트가 쌓이니까 제 약점이 뭔지 분명해졌고, 다음 답안부터 바로 반영할 수 있었습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">정</div><div class="review-mini-info"><strong>정민규</strong><span>심화 패키지 수강</span></div></div></div>
+          <div class="review-mini"><div class="star-row">★★★★★</div><p>"논술과 면접을 따로 준비하지 않고 한 프로그램 안에서 정리할 수 있어서 훨씬 효율적이었습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">한</div><div class="review-mini-info"><strong>한유민</strong><span>통합 코칭 후기</span></div></div></div>
+        </div>
+        <div class="review-marquee-row">
+          <div class="review-mini"><div class="star-row">★★★★★</div><p>"교육학 용어를 어디에 써야 하는지 감이 안 왔는데, 구조를 잡아주셔서 답안이 훨씬 단단해졌습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">오</div><div class="review-mini-info"><strong>오세진</strong><span>교육학 논술 코칭</span></div></div></div>
+          <div class="review-mini accent-purple"><div class="star-row">★★★★★</div><p>"48시간 안에 피드백이 오니까 공부 흐름이 끊기지 않았고, 바로 수정본을 써볼 수 있었어요."</p><div class="review-mini-meta"><div class="review-mini-avatar">윤</div><div class="review-mini-info"><strong>윤가은</strong><span>빠른 피드백 만족</span></div></div></div>
+          <div class="review-mini accent-blue"><div class="star-row">★★★★★</div><p>"면접에서 자꾸 길게 말하던 습관이 있었는데, 실제 시뮬레이션 후 많이 정리됐습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">강</div><div class="review-mini-info"><strong>강민서</strong><span>면접 실전 코칭</span></div></div></div>
+          <div class="review-mini"><div class="star-row">★★★★★</div><p>"스터디와 1:1을 같이 병행할 수 있어서 혼자 준비할 때보다 훨씬 밀도가 높았습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">신</div><div class="review-mini-info"><strong>신도현</strong><span>혼합 운영 수강</span></div></div></div>
+          <div class="review-mini accent-blue"><div class="star-row">★★★★★</div><p>"기출 문제 해설보다 제 답안을 기준으로 설명받는 게 훨씬 효과적이라는 걸 느꼈어요."</p><div class="review-mini-meta"><div class="review-mini-avatar">임</div><div class="review-mini-info"><strong>임수아</strong><span>개별 첨삭 집중 코칭</span></div></div></div>
+        </div>
+        <div class="review-marquee-row">
+          <div class="review-mini accent-purple"><div class="star-row">★★★★★</div><p>"실전 시뮬레이션을 포함해 돌려보니 시험장에 들어가서도 훨씬 덜 흔들릴 것 같았습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">류</div><div class="review-mini-info"><strong>류예찬</strong><span>실전형 패키지 후기</span></div></div></div>
+          <div class="review-mini"><div class="star-row">★★★★★</div><p>"논점 이탈을 자꾸 했는데, 피드백 리포트에서 반복 패턴을 짚어준 게 정말 유익했습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">문</div><div class="review-mini-info"><strong>문지후</strong><span>약점 분석 리포트 만족</span></div></div></div>
+          <div class="review-mini accent-blue"><div class="star-row">★★★★★</div><p>"답안 구조와 면접 답변을 같이 정리하니까 준비 전체가 훨씬 체계적으로 느껴졌습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">배</div><div class="review-mini-info"><strong>배예린</strong><span>논술+면접 통합 수강</span></div></div></div>
+          <div class="review-mini"><div class="star-row">★★★★★</div><p>"필요할 때 예약제로 추가 설명을 받을 수 있어 혼자 막히는 구간을 빨리 넘길 수 있었습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">전</div><div class="review-mini-info"><strong>전서윤</strong><span>예약형 Zoom 세션</span></div></div></div>
+          <div class="review-mini accent-purple"><div class="star-row">★★★★★</div><p>"일반 첨삭보다 훨씬 실전적이었고, 무엇을 고쳐야 점수가 오르는지 분명했습니다."</p><div class="review-mini-meta"><div class="review-mini-avatar">장</div><div class="review-mini-info"><strong>장현우</strong><span>임용 논술 집중 코칭</span></div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ FAQ ══ -->
+    <section class="faq-band">
+      <div class="wrap">
+        <div style="max-width:780px;margin:0 auto;">
+          <div class="faq-title">자주 묻는 질문</div>
+          <details open>
+            <summary>논술만 따로, 면접만 따로 받을 수 있나요? <span class="faq-arrow">▾</span></summary>
+            <p>가능합니다. 단일 회차로 논술 또는 모의면접만 진행할 수 있고, 필요하면 두 영역을 묶어 통합 패키지로 운영할 수도 있습니다.</p>
+          </details>
+          <details>
+            <summary>피드백은 얼마나 빨리 받을 수 있나요? <span class="faq-arrow">▾</span></summary>
+            <p>기본적으로 빠른 회신을 원칙으로 하며, 이미지 기준으로 안내된 것처럼 48시간 내 피드백 구조를 기준으로 운영합니다. 세부 일정은 회차와 인원에 따라 조정될 수 있습니다.</p>
+          </details>
+          <details>
+            <summary>Zoom 설명은 어떻게 진행되나요? <span class="faq-arrow">▾</span></summary>
+            <p>서면 피드백 이후 공통 해설과 개별 질의응답을 Zoom으로 연결합니다. 논술은 답안 구조와 논점, 면접은 답변 흐름과 전달 방식을 중심으로 설명합니다.</p>
+          </details>
+          <details>
+            <summary>스터디형과 1:1 코칭을 같이 할 수 있나요? <span class="faq-arrow">▾</span></summary>
+            <p>가능합니다. 이미지 자료에 나온 구조처럼 스터디 그룹 또는 1:1 코칭 방식을 병행할 수 있고, 상황에 따라 조별/개별 진행을 혼합할 수 있습니다.</p>
+          </details>
+          <details>
+            <summary>어떤 수험생에게 가장 적합한가요? <span class="faq-arrow">▾</span></summary>
+            <p>논술 채점 기준을 제대로 이해하고 싶은 분, 예상문제로 실전 훈련을 하고 싶은 분, 모의면접까지 한 프로그램 안에서 정리하고 싶은 임용 준비생에게 적합합니다.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ CTA ══ -->
+    <section class="cta-band" id="cta">
+      <div class="wrap">
+        <div class="cta-inner">
+          <div class="cta-badge">교직논술 &amp; 모의면접 코칭</div>
+          <h2>출제 경향부터<br>실전 시뮬레이션까지</h2>
+          <p>최신 기출과 예상문제, 채점 기준 기반 피드백, Zoom 실시간 설명을 한 흐름으로 연결합니다.<br>임용 준비를 실제 시험 감각에 가깝게 정리해보세요.</p>
+          <a class="btn-primary" href="mailto:biglinkerkor@gmail.com" style="margin:0 auto;display:inline-flex;">무료 상담 신청하기 →</a>
+          <div class="cta-contact">
+            <div class="cta-contact-item">📞 <strong>02-2039-8584</strong></div>
+            <div class="cta-contact-item">📱 <strong>Kate.Lee 010-2507-0174</strong></div>
+            <div class="cta-contact-item">📱 <strong>Kevin.Lee 010-9253-7319</strong></div>
+            <div class="cta-contact-item">✉️ <strong>biglinkerkor@gmail.com</strong></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ══ FOOTER ══ -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div>
+          <div class="footer-logo">BigLinker</div>
+          <p class="footer-brand-desc">입시·대학원·학업계획서·논문·면접 코칭 전문<br>교직논술과 임용 모의면접 코칭도 빅링커와 함께합니다.</p>
+          <div class="footer-sns">
+            <button class="footer-sns-btn" aria-label="Instagram">IG</button>
+            <button class="footer-sns-btn" aria-label="YouTube">YT</button>
+            <button class="footer-sns-btn" aria-label="Blog">BL</button>
+          </div>
+        </div>
+        <div class="footer-nav-grid">
+          <div class="footer-nav-group">
+            <h4>서비스</h4>
+            <a href="./admissions.html">대입코칭</a>
+            <a href="./self-introduction.html">페이퍼코칭</a>
+            <a href="./interview-coaching.html">면접코칭</a>
+            <a href="./thesis-coaching.html">논문코칭</a>
+            <a href="./ec-coaching.html">EC코칭</a>
+            <a href="./design-coaching.html">디자인코칭</a>
+            <a href="./career-coaching.html">취업코칭</a>
+            <a href="./hospital-job-coaching.html">병원취업코칭</a>
+            <a href="./appointment-coaching.html">임용코칭</a>
+          </div>
+          <div class="footer-nav-group">
+            <h4>리소스</h4>
+            <a href="#">블로그</a>
+            <a href="#">리얼 TIP</a>
+            <a href="#">합격 사례</a>
+            <a href="#">무료 가이드</a>
+          </div>
+          <div class="footer-nav-group">
+            <h4>회사</h4>
+            <a href="#">빅링커 소개</a>
+            <a href="#">코치 소개</a>
+            <a href="#">이용 약관</a>
+            <a href="#">개인정보처리방침</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-legal">© 2026 BigLinker. All rights reserved.<br>사업자등록번호: 000-00-00000 | 대표: 빅링커 | 서울특별시 금천구 디지털로9길 32, B동 1901호</div>
+        <div class="footer-policy-links">
+          <a href="#">이용약관</a>
+          <a href="#">개인정보처리방침</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Mobile CTA -->
+  <div class="mobile-floating-cta">
+    <div>
+      <strong>임용 코칭</strong>
+      <span>지금 무료 상담 신청하기</span>
+    </div>
+    <a class="btn-primary" href="#cta" style="min-height:40px;padding:0 18px;font-size:13px;flex-shrink:0;">신청 →</a>
+  </div>
+
+  <script>
+    const topShell = document.getElementById('topShell');
+    let lastY = 0;
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      if (y > 220 && y > lastY) topShell.classList.add('is-collapsed');
+      else topShell.classList.remove('is-collapsed');
+      lastY = y;
+    }, { passive: true });
+  </script>
+</body>
+</html>

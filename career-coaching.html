@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BigLinker 하이엔드 취업 코칭</title>
+  <style>
+    :root {
+      --header-bg: #f6f7fb; --header-surface: #ffffff; --header-line: #e5e8ef;
+      --header-line-strong: #d7dbe5; --header-text: #17191f; --header-muted: #6e7687;
+      --bg: #0b0e13; --bg-soft: #121722; --bg-dark: #090c11; --panel: #f5f6fb;
+      --text: #f6f7fb; --muted: rgba(255,255,255,0.66); --muted-dark: #5d6473;
+      --brand: #4a68ff; --brand-2: #7f92ff; --brand-soft: #eef0ff;
+      --max: 1320px; --radius-xl: 28px; --radius-lg: 22px; --radius-md: 18px;
+      --radius-sm: 12px; --radius-xs: 8px;
+      --shadow: 0 24px 60px rgba(0,0,0,0.28); --shadow-card: 0 18px 36px rgba(36,46,78,0.08);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Pretendard", "Noto Sans KR", sans-serif;
+      background: radial-gradient(circle at 50% 0%, rgba(66,104,255,0.12), transparent 18%),
+        linear-gradient(180deg, #090b0f 0%, #0b0e13 32%, #0d1015 100%);
+      color: var(--text);
+    }
+    a { color: inherit; text-decoration: none; }
+    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 28px; }
+    .inner { max-width: var(--max); margin: 0 auto; padding: 0 20px; }
+
+    /* ── HEADER ── */
+    .top-shell {
+      position: sticky; top: 0; z-index: 120;
+      background: rgba(255,255,255,0.94); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--header-line);
+      transition: transform 0.28s ease, opacity 0.28s ease;
+    }
+    .top-shell.is-collapsed { transform: translateY(-100%); opacity: 0; }
+    .sticky-category-shell {
+      position: sticky; top: 0; z-index: 110;
+      background: rgba(247,248,252,0.98);
+      border-top: 1px solid #edf0f6; border-bottom: 1px solid var(--header-line);
+      backdrop-filter: blur(12px);
+    }
+    .family-bar { background: #fff; }
+    .family-outer { display: flex; justify-content: center; padding: 10px 0; }
+    .family-wrap {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 46px; padding: 4px; border: 1px solid var(--header-line-strong);
+      border-radius: 16px; background: #fff; box-shadow: 0 4px 16px rgba(32,43,73,0.08);
+      overflow-x: auto; scrollbar-width: none; white-space: nowrap;
+    }
+    .family-wrap::-webkit-scrollbar, .category-tabs::-webkit-scrollbar { display: none; }
+    .family-link { flex: 0 0 auto; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 700; color: var(--header-muted); }
+    .family-link.is-active { background: var(--brand-soft); color: var(--brand); }
+    .main-header { background: #fff; }
+    .main-header-wrap { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; min-height: 78px; }
+    .header-promo {
+      justify-self: start; align-self: stretch; display: flex; align-items: center;
+      padding: 0 16px; border-radius: 0 0 14px 14px; border: 1px solid #dfe3ff; border-top: 0;
+      background: linear-gradient(180deg, #eef2ff 0%, #f6f8ff 100%);
+      color: var(--brand); font-size: 13px; font-weight: 800; white-space: nowrap;
+    }
+    .brand { display: flex; flex-direction: column; align-items: center; justify-self: center; text-align: center; gap: 6px; }
+    .brand-mark { width: 132px; height: 44px; object-fit: contain; }
+    .brand-copy span { display: block; color: var(--header-muted); font-size: 12px; line-height: 1.45; }
+    .header-actions { display: flex; align-items: center; justify-self: end; gap: 8px; }
+    .cta-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--brand); background: var(--brand); color: #fff; font-weight: 700; font-size: 13px; }
+    .category-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 58px; gap: 12px; }
+    .category-balance { justify-self: start; width: 120px; }
+    .category-tabs { display: flex; align-items: center; justify-content: center; gap: 2px; overflow-x: auto; scrollbar-width: none; white-space: nowrap; }
+    .category-tab { flex: 0 0 auto; position: relative; padding: 0 16px; min-height: 48px; display: inline-flex; align-items: center; font-size: 14px; font-weight: 700; color: var(--header-muted); }
+    .category-tab.is-active { color: var(--brand); }
+    .category-tab.is-active::after { content: ""; position: absolute; left: 16px; right: 16px; bottom: 0; height: 3px; background: var(--brand); border-radius: 999px; }
+    .category-utility { display: flex; align-items: center; justify-self: end; gap: 6px; width: 240px; }
+    .utility-link { display: inline-flex; align-items: center; min-height: 28px; padding: 0 10px; border-radius: 999px; border: 1px solid #e4e7ef; background: #f8f9fc; color: #6f7786; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .utility-link:hover { background: var(--brand-soft); color: var(--brand); }
+
+    /* ── SECTION BASE ── */
+    .section-eyebrow { display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.36); margin-bottom: 18px; }
+    .section-eyebrow::before { content: ""; width: 28px; height: 2px; background: currentColor; flex-shrink: 0; }
+    .section-eyebrow.center { justify-content: center; }
+    .section-eyebrow.center::before { display: none; }
+    .section-light .section-eyebrow, .section-panel .section-eyebrow { color: var(--brand); }
+    .section-light { background: #fff; padding: 100px 0; }
+    .section-panel { background: var(--panel); padding: 100px 0; }
+    .section-dark {
+      padding: 110px 0;
+      --header-text: var(--text); --header-muted: var(--muted); --brand-soft: rgba(74,104,255,0.12);
+    }
+    .section-dark .light-card { --header-text: #17191f; --header-muted: #6e7687; --brand-soft: #eef0ff; }
+    .sec-h2 { font-size: clamp(22px,2.8vw,36px); font-weight: 700; letter-spacing: -0.045em; line-height: 1.3; }
+
+    /* ── HERO ── */
+    .hero { padding: 88px 0 68px; text-align: center; }
+    .hero-kicker { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(127,146,255,0.3); background: rgba(74,104,255,0.1); font-size: 12px; font-weight: 700; color: var(--brand-2); margin-bottom: 28px; }
+    .hero h1 { max-width: 780px; margin: 0 auto 20px; font-size: clamp(30px,4.6vw,60px); line-height: 1.14; letter-spacing: -0.05em; font-weight: 700; color: var(--text); }
+    .hero h1 em { color: var(--brand-2); font-style: normal; }
+    .hero p { max-width: 560px; margin: 0 auto 36px; color: var(--muted); font-size: 15px; line-height: 1.8; }
+    .hero-actions { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin-bottom: 52px; }
+    .btn-primary { display: inline-flex; align-items: center; justify-content: center; min-height: 54px; padding: 0 28px; border-radius: 13px; font-size: 15px; font-weight: 700; background: var(--brand); color: #fff; box-shadow: 0 10px 28px rgba(74,104,255,0.28); transition: transform 0.2s; }
+    .btn-primary:hover { transform: translateY(-2px); }
+    .btn-secondary { display: inline-flex; align-items: center; justify-content: center; min-height: 54px; padding: 0 24px; border-radius: 13px; font-size: 15px; font-weight: 700; border: 1.5px solid rgba(255,255,255,0.22); color: var(--text); background: rgba(255,255,255,0.06); transition: transform 0.2s; }
+    .btn-secondary:hover { transform: translateY(-2px); }
+    .hero-stats { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
+    .hero-stat { text-align: center; }
+    .hero-stat .s-num { font-size: 32px; font-weight: 900; color: var(--brand-2); letter-spacing: -0.04em; line-height: 1; }
+    .hero-stat .s-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* ── 채용 변화 ── */
+    .trend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+    .trend-left h2 { margin-bottom: 16px; }
+    .trend-left p { font-size: 14.5px; color: var(--muted); line-height: 1.85; margin-bottom: 20px; }
+    .trend-flow { display: flex; align-items: center; gap: 12px; padding: 20px; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.04); margin-bottom: 20px; flex-wrap: wrap; }
+    .trend-box { flex: 1; min-width: 100px; text-align: center; }
+    .trend-box .t-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.4); margin-bottom: 6px; }
+    .trend-box .t-val { font-size: 13px; color: var(--muted); line-height: 1.55; }
+    .trend-arrow { color: var(--brand-2); font-size: 18px; flex-shrink: 0; }
+    .eval-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .eval-card { padding: 20px 18px; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.04); }
+    .eval-card .e-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .eval-card p { font-size: 12.5px; color: var(--muted); line-height: 1.65; margin: 0; }
+
+    /* ── WHY ── */
+    .why-4grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .why-card { padding: 28px 24px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.04); }
+    .why-card .w-icon { width: 44px; height: 44px; border-radius: 12px; background: rgba(74,104,255,0.15); border: 1px solid rgba(74,104,255,0.28); display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 16px; }
+    .why-card h3 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .why-card p { font-size: 13px; color: var(--muted); line-height: 1.7; margin: 0; }
+
+    /* ── FOR WHO ── */
+    .who-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .who-card { padding: 28px 22px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.04); }
+    .who-card .wc-tag { display: inline-flex; align-items: center; min-height: 26px; padding: 0 12px; border-radius: 999px; background: rgba(74,104,255,0.15); border: 1px solid rgba(74,104,255,0.3); font-size: 11px; font-weight: 800; color: var(--brand-2); margin-bottom: 14px; }
+    .who-card h3 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+    .who-card ul { list-style: none; display: grid; gap: 7px; }
+    .who-card ul li { display: flex; align-items: flex-start; gap: 7px; font-size: 13px; color: var(--muted); line-height: 1.65; }
+    .who-card ul li::before { content: "•"; color: var(--brand-2); flex-shrink: 0; font-size: 12px; margin-top: 2px; }
+
+    /* ── 비교표 (LIGHT) ── */
+    .compare-table { width: 100%; border-collapse: separate; border-spacing: 0; border-radius: var(--radius-md); overflow: hidden; border: 1px solid #e7ebf3; }
+    .compare-table th { padding: 16px 22px; font-size: 13px; font-weight: 800; text-align: center; }
+    .compare-table th:first-child { text-align: left; background: #f8f9fc; color: var(--header-muted); width: 130px; }
+    .compare-table th.ours { background: var(--brand); color: #fff; }
+    .compare-table th.theirs { background: #f0f1f7; color: var(--header-muted); }
+    .compare-table td { padding: 15px 22px; font-size: 13.5px; border-top: 1px solid #edf0f6; text-align: center; vertical-align: middle; line-height: 1.6; }
+    .compare-table td:first-child { text-align: left; background: #fafbfc; color: var(--header-muted); font-size: 12px; font-weight: 700; }
+    .compare-table td.ours { background: rgba(74,104,255,0.06); color: var(--header-text); font-weight: 600; }
+    .compare-table td.theirs { color: #a0a8b8; }
+    .compare-note { text-align: center; font-size: 13px; color: var(--header-muted); margin-top: 20px; font-style: italic; }
+
+    /* ── 4단계 프로세스 (DARK) ── */
+    .process-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; position: relative; }
+    .process-grid::before { content: ""; position: absolute; top: 40px; left: 12.5%; right: 12.5%; height: 2px; background: rgba(74,104,255,0.25); z-index: 0; }
+    .process-item { position: relative; z-index: 1; text-align: center; padding: 0 10px; }
+    .proc-circle { width: 80px; height: 80px; border-radius: 999px; background: var(--bg-soft); border: 2px solid rgba(74,104,255,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; margin: 0 auto 18px; }
+    .proc-circle.active { background: var(--brand); border-color: var(--brand); }
+    .proc-step { font-size: 10px; font-weight: 800; letter-spacing: 0.06em; color: var(--brand-2); }
+    .proc-circle.active .proc-step { color: rgba(255,255,255,0.8); }
+    .proc-num { font-size: 20px; font-weight: 900; color: var(--text); line-height: 1; }
+    .process-item h3 { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+    .process-item ul { list-style: none; display: grid; gap: 5px; }
+    .process-item ul li { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+    /* ── 4주 커리큘럼 (PANEL) ── */
+    .week-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .week-card { padding: 26px 20px; border-radius: var(--radius-md); border: 1px solid #e7ebf3; background: #fff; box-shadow: var(--shadow-card); }
+    .week-card.highlight { background: var(--brand); border-color: var(--brand); }
+    .week-tag { display: inline-flex; align-items: center; min-height: 22px; padding: 0 10px; border-radius: 999px; background: var(--brand-soft); color: var(--brand); font-size: 10px; font-weight: 800; letter-spacing: 0.06em; margin-bottom: 10px; }
+    .week-card.highlight .week-tag { background: rgba(255,255,255,0.25); color: #fff; }
+    .week-card h3 { font-size: 14px; font-weight: 700; color: var(--header-text); margin-bottom: 12px; line-height: 1.35; }
+    .week-card.highlight h3 { color: #fff; }
+    .week-list { display: grid; gap: 6px; list-style: none; }
+    .week-list li { font-size: 12px; color: var(--header-muted); line-height: 1.6; display: flex; align-items: flex-start; gap: 6px; }
+    .week-list li::before { content: "—"; color: var(--brand); flex-shrink: 0; font-size: 11px; margin-top: 1px; }
+    .week-card.highlight .week-list li { color: rgba(255,255,255,0.8); }
+    .week-card.highlight .week-list li::before { color: rgba(255,255,255,0.5); }
+    .week-output { display: flex; align-items: center; gap: 6px; margin-top: 16px; padding-top: 12px; border-top: 1px solid #edf0f6; font-size: 11px; font-weight: 700; color: var(--brand); }
+    .week-card.highlight .week-output { border-top-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.85); }
+
+    /* ── 직무별 분야 (DARK) ── */
+    .domain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .domain-card { padding: 24px 22px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.04); }
+    .domain-card .d-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .domain-card .d-icon { width: 36px; height: 36px; border-radius: 9px; background: rgba(74,104,255,0.15); border: 1px solid rgba(74,104,255,0.28); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .domain-card h3 { font-size: 14px; font-weight: 700; color: var(--text); }
+    .domain-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .domain-tag { display: inline-flex; align-items: center; min-height: 24px; padding: 0 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); font-size: 11.5px; color: var(--muted); }
+
+    /* ── 성공 사례 (LIGHT) ── */
+    .case-intro { display: grid; grid-template-columns: 1fr 1.4fr; gap: 40px; align-items: start; margin-bottom: 40px; }
+    .ba-box { padding: 26px 24px; border-radius: var(--radius-md); }
+    .ba-box.before { border: 1px solid #e7ebf3; background: #fff; box-shadow: var(--shadow-card); }
+    .ba-box.after { background: var(--brand); }
+    .ba-label { font-size: 11px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
+    .ba-box.before .ba-label { color: var(--header-muted); }
+    .ba-box.after .ba-label { color: rgba(255,255,255,0.7); }
+    .ba-list { display: grid; gap: 8px; }
+    .ba-item { display: flex; align-items: flex-start; gap: 7px; font-size: 13px; line-height: 1.65; }
+    .ba-box.before .ba-item { color: var(--header-muted); }
+    .ba-box.after .ba-item { color: rgba(255,255,255,0.9); }
+    .ba-dot { flex-shrink: 0; width: 6px; height: 6px; border-radius: 999px; margin-top: 7px; }
+    .ba-box.before .ba-dot { background: #cbd5e1; }
+    .ba-box.after .ba-dot { background: rgba(255,255,255,0.5); }
+    .case-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .case-card { padding: 22px 20px; border-radius: var(--radius-sm); border: 1px solid #e7ebf3; background: #fff; box-shadow: var(--shadow-card); }
+    .case-badge { display: inline-flex; align-items: center; min-height: 22px; padding: 0 10px; border-radius: 999px; background: var(--brand-soft); color: var(--brand); font-size: 11px; font-weight: 800; margin-bottom: 10px; }
+    .case-card p { font-size: 13px; color: var(--header-muted); line-height: 1.7; }
+    .case-card .c-result { font-size: 12px; font-weight: 700; color: var(--brand); margin-top: 10px; }
+
+    /* ── REVIEW MARQUEE ── */
+    .review-band { padding: 110px 0 130px; background: #0b0e13; }
+    .review-band-head { text-align: center; margin-bottom: 46px; }
+    .review-band-head h2 { font-size: clamp(24px,3vw,40px); font-weight: 700; line-height: 1.24; letter-spacing: -0.045em; color: var(--text); margin-bottom: 10px; }
+    .review-band-head p { font-size: 15px; color: var(--muted); }
+    .review-marquee-wrap { width: 100vw; position: relative; left: 50%; margin-left: -50vw; overflow: hidden; display: flex; flex-direction: column; gap: 14px; padding: 8px 0 4px; }
+    .review-marquee-row { display: flex; gap: 14px; width: max-content; }
+    .review-marquee-row:nth-child(1) { animation: rmq-ltr 38s linear infinite; }
+    .review-marquee-row:nth-child(2) { animation: rmq-rtl 55s linear infinite; }
+    .review-marquee-row:nth-child(3) { animation: rmq-ltr 46s linear infinite; }
+    @keyframes rmq-ltr { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    @keyframes rmq-rtl { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }
+    .review-mini { flex-shrink: 0; padding: 20px 22px 16px; border-radius: 18px; background: rgba(255,255,255,0.055); border: 1px solid rgba(255,255,255,0.09); display: flex; flex-direction: column; }
+    .review-mini:nth-child(4n+1) { width: 280px; } .review-mini:nth-child(4n+2) { width: 340px; } .review-mini:nth-child(4n+3) { width: 260px; } .review-mini:nth-child(4n+4) { width: 320px; }
+    .review-mini.accent-blue { background: rgba(74,104,255,0.10); border-color: rgba(74,104,255,0.25); }
+    .review-mini.accent-purple { background: rgba(167,139,250,0.10); border-color: rgba(167,139,250,0.22); }
+    .review-mini p { margin: 8px 0 auto; font-size: 13.5px; color: rgba(255,255,255,0.78); line-height: 1.7; flex: 1; }
+    .review-mini-meta { display: flex; align-items: center; gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.07); }
+    .review-mini-avatar { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg,#4a68ff,#a78bfa); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #fff; }
+    .review-mini.accent-blue .review-mini-avatar { background: linear-gradient(135deg,#2563eb,#4a68ff); }
+    .review-mini.accent-purple .review-mini-avatar { background: linear-gradient(135deg,#7c3aed,#a78bfa); }
+    .review-mini-info strong { display: block; font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.9); }
+    .review-mini-info span { font-size: 10px; color: #7f92ff; font-weight: 600; }
+    .star-row { color: #f59e0b; font-size: 13px; margin-bottom: 8px; }
+
+    /* ── FAQ ── */
+    .faq-band { padding: 100px 0; background: var(--bg-soft); }
+    .faq-title { font-size: clamp(22px,2.5vw,34px); font-weight: 700; letter-spacing: -0.04em; line-height: 1.3; color: var(--text); margin-bottom: 40px; text-align: center; }
+    details { border-bottom: 1px solid rgba(255,255,255,0.08); }
+    summary { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; cursor: pointer; list-style: none; font-size: 15px; font-weight: 600; color: var(--text); }
+    summary::-webkit-details-marker { display: none; }
+    .faq-arrow { font-size: 18px; color: var(--brand-2); transition: transform 0.2s; flex-shrink: 0; }
+    details[open] .faq-arrow { transform: rotate(180deg); }
+    details p { padding: 0 0 22px; color: var(--muted); font-size: 14px; line-height: 1.8; }
+
+    /* ── CTA ── */
+    .cta-band { padding: 120px 0; background: radial-gradient(ellipse at 50% 0%, rgba(74,104,255,0.24), transparent 70%); }
+    .cta-inner { max-width: 700px; margin: 0 auto; text-align: center; }
+    .cta-badge { display: inline-flex; align-items: center; min-height: 28px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(127,146,255,0.4); background: rgba(127,146,255,0.1); font-size: 12px; font-weight: 700; color: var(--brand-2); margin-bottom: 20px; }
+    .cta-inner h2 { font-size: clamp(26px,3.2vw,44px); font-weight: 700; line-height: 1.25; letter-spacing: -0.045em; color: var(--text); margin-bottom: 16px; }
+    .cta-inner p { font-size: 15px; color: var(--muted); line-height: 1.8; margin-bottom: 36px; }
+    .cta-contact { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; margin-top: 28px; }
+    .cta-contact-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: rgba(255,255,255,0.55); }
+    .cta-contact-item strong { color: rgba(255,255,255,0.9); font-weight: 700; }
+
+    /* ── FOOTER ── */
+    .site-footer { background: var(--bg-dark); border-top: 1px solid rgba(255,255,255,0.06); }
+    .footer-inner { max-width: var(--max); margin: 0 auto; padding: 0 28px; }
+    .footer-top { display: grid; grid-template-columns: 280px 1fr; gap: 60px; padding: 60px 0 40px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .footer-logo { font-size: 18px; font-weight: 900; color: var(--brand-2); margin-bottom: 12px; }
+    .footer-brand-desc { font-size: 13px; color: var(--muted-dark); line-height: 1.75; margin: 0 0 16px; }
+    .footer-sns { display: flex; gap: 8px; }
+    .footer-sns-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: var(--muted-dark); font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .footer-nav-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+    .footer-nav-group h4 { font-size: 12px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 14px; }
+    .footer-nav-group a { display: block; font-size: 13px; color: var(--muted-dark); margin-bottom: 10px; font-weight: 500; }
+    .footer-nav-group a:hover { color: var(--brand-2); }
+    .footer-bottom { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; gap: 16px; }
+    .footer-legal { font-size: 12px; color: var(--muted-dark); line-height: 1.7; }
+    .footer-policy-links { display: flex; gap: 16px; }
+    .footer-policy-links a { font-size: 12px; color: var(--muted-dark); font-weight: 600; }
+
+    /* ── MOBILE ── */
+    .mobile-floating-cta { display: none; position: fixed; bottom: 20px; left: 16px; right: 16px; border-radius: 16px; background: var(--brand); padding: 14px 18px; box-shadow: 0 16px 40px rgba(74,104,255,0.4); align-items: center; gap: 12px; z-index: 900; }
+    .mobile-floating-cta strong { display: block; font-size: 14px; font-weight: 800; color: #fff; }
+    .mobile-floating-cta span { font-size: 12px; color: rgba(255,255,255,0.75); }
+
+    @media (max-width: 760px) {
+      .wrap, .inner { padding: 0 16px; }
+      .main-header-wrap, .category-row { grid-template-columns: 1fr; }
+      .header-promo, .header-actions, .category-balance { display: none; }
+      .brand { justify-self: center; }
+      .category-utility { width: auto; overflow-x: auto; scrollbar-width: none; white-space: nowrap; padding-bottom: 8px; }
+      .mobile-floating-cta { display: flex; }
+      .trend-grid { grid-template-columns: 1fr; gap: 32px; }
+      .eval-grid { grid-template-columns: 1fr; }
+      .why-4grid { grid-template-columns: 1fr; }
+      .who-cols { grid-template-columns: 1fr; }
+      .process-grid { grid-template-columns: 1fr 1fr; }
+      .process-grid::before { display: none; }
+      .week-grid { grid-template-columns: 1fr 1fr; }
+      .domain-grid { grid-template-columns: 1fr; }
+      .case-intro { grid-template-columns: 1fr; }
+      .case-cards { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr; gap: 32px; }
+      .footer-nav-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══ HEADER ══ -->
+  <div class="top-shell" id="topShell">
+    <div class="family-bar">
+      <div class="inner">
+        <div class="family-outer">
+          <div class="family-wrap">
+            <a class="family-link" href="https://biglinker-transfer.vercel.app/">대학&편입</a>
+            <a class="family-link" href="https://biglinker-graduate.vercel.app/">대학원&논문</a>
+            <a class="family-link is-active" href="https://biglinker-job.vercel.app/">취업</a>
+            <a class="family-link" href="https://biglinker-biz.vercel.app/">기업교육</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <header class="main-header">
+      <div class="inner">
+        <div class="main-header-wrap">
+          <div class="header-promo">박사급 전문가 1:1 밀착 코칭</div>
+          <a class="brand" href="./index.html">
+            <img class="brand-mark" src="./biglinker-logo.png" alt="빅링커 로고">
+            <div class="brand-copy"><span>입시·대학원·학업계획서·논문·면접 코칭 전문</span></div>
+          </a>
+          <div class="header-actions"><a class="cta-btn" href="#cta">상담 신청</a></div>
+        </div>
+      </div>
+    </header>
+  </div>
+
+  <div class="sticky-category-shell">
+    <div class="inner">
+      <div class="category-row">
+        <div class="category-balance" aria-hidden="true"></div>
+        <nav class="category-tabs" aria-label="서비스 카테고리">
+          <a class="category-tab" href="./career-coaching.html">기업취업코칭</a>
+          <a class="category-tab" href="./hospital-job-coaching.html">병원취업코칭</a>
+          <a class="category-tab" href="./appointment-coaching.html">임용코치</a>
+        </nav>
+        <div class="category-utility">
+          <button class="utility-link" type="button">블로그</button>
+          <button class="utility-link" type="button">리얼 TIP</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main>
+
+    <!-- ══ HERO ══ -->
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero-kicker">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#7f92ff" stroke-width="1.4"/><path d="M4.5 7l2 2 3-3" stroke="#7f92ff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          PREMIUM CAREER SOLUTION
+        </div>
+        <h1>빅링커 <em>하이엔드</em><br>취업 코칭</h1>
+        <p>단순한 컨설팅을 넘어,<br>산업 현장의 핵심 인재로 성장하는 로드맵</p>
+        <div class="hero-actions">
+          <a class="btn-primary" href="#cta">무료 상담 신청하기 →</a>
+          <a class="btn-secondary" href="#process">4단계 프로세스 보기</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="s-num">박사급</div>
+            <div class="s-label">현직 전문가 코치진</div>
+          </div>
+          <div class="hero-stat">
+            <div class="s-num">4주</div>
+            <div class="s-label">집중 코칭 커리큘럼</div>
+          </div>
+          <div class="hero-stat">
+            <div class="s-num">5개</div>
+            <div class="s-label">전문 직무 분야</div>
+          </div>
+          <div class="hero-stat">
+            <div class="s-num">1:1</div>
+            <div class="s-label">밀착 맞춤 코칭</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 채용 변화 ══ -->
+    <section class="section-dark" id="why-now">
+      <div class="wrap">
+        <div class="trend-grid">
+          <div class="trend-left">
+            <div class="section-eyebrow">Hiring Trends</div>
+            <h2 class="sec-h2" style="color:var(--text);margin-bottom:16px;">변화하는 채용 환경과<br>코칭의 필요성</h2>
+            <p>과거의 대규모 공채 중심의 채용에서 직무 역량 중심의 수시 채용 패러다임으로 전환되고 있습니다.</p>
+            <div class="trend-flow">
+              <div class="trend-box">
+                <div class="t-label">과거</div>
+                <div class="t-val">정형화된 스펙 위주<br>일관된 채용 시험</div>
+              </div>
+              <div class="trend-arrow">→</div>
+              <div class="trend-box">
+                <div class="t-label">현재</div>
+                <div class="t-val">AI 채용 도입<br>블라인드 면접</div>
+              </div>
+              <div class="trend-arrow">→</div>
+              <div class="trend-box">
+                <div class="t-label">핵심</div>
+                <div class="t-val" style="color:var(--brand-2);font-weight:700;">직무 FIT<br>문제 해결 능력</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p style="font-size:14px;color:var(--muted);margin-bottom:18px;">기업이 평가하는 핵심 요소</p>
+            <div class="eval-grid">
+              <div class="eval-card">
+                <div class="e-title">직무 이해도</div>
+                <p>단순 업무 나열이 아닌, 해당 직무의 본질적 가치 파악</p>
+              </div>
+              <div class="eval-card">
+                <div class="e-title">트렌드 분석</div>
+                <p>시장 변화와 기술 발전에 따른 기업의 미래 대응 능력 제시</p>
+              </div>
+              <div class="eval-card">
+                <div class="e-title">논리적 사고</div>
+                <p>현상 분석부터 해결 방안까지 구조화된 사고와 근거 제시</p>
+              </div>
+              <div class="eval-card">
+                <div class="e-title">전문 용어 활용</div>
+                <p>현업 전문가와 소통 가능한 정밀한 기술/비즈니스 언어</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ WHY BIGLINKER ══ -->
+    <section class="section-dark" id="why-us">
+      <div class="wrap">
+        <div class="section-eyebrow center">Why BigLinker</div>
+        <h2 class="sec-h2" style="color:var(--text);text-align:center;margin-bottom:12px;">기업이 원하는 인재상,<br>빅링커가 만듭니다</h2>
+        <p style="text-align:center;font-size:15px;color:var(--muted);margin-bottom:44px;">빅링커는 개인의 경험을 직무 중심으로 구조화하여 기업이 선호하는 실전형 인재로 브랜딩합니다.</p>
+        <div class="why-4grid">
+          <div class="why-card">
+            <div class="w-icon">🔍</div>
+            <h3>직무에 대한 깊은 이해</h3>
+            <p>단순 업무 나열이 아닌, 해당 직무의 본질적 가치를 파악하고 기업이 원하는 방식으로 재해석합니다.</p>
+          </div>
+          <div class="why-card">
+            <div class="w-icon">📈</div>
+            <h3>산업/기술 트렌드 분석</h3>
+            <p>시장 변화와 기술 발전에 따른 기업의 미래 대응 능력을 논리적으로 제시하는 역량을 키웁니다.</p>
+          </div>
+          <div class="why-card">
+            <div class="w-icon">🧩</div>
+            <h3>논리적 문제 해결 능력</h3>
+            <p>현상 분석부터 해결 방안까지 구조화된 사고와 근거를 제시하는 MECE 기반 답변 설계를 훈련합니다.</p>
+          </div>
+          <div class="why-card">
+            <div class="w-icon">💬</div>
+            <h3>전문 실무 용어 활용</h3>
+            <p>현업 전문가와 소통 가능한 정밀한 기술/비즈니스 언어를 체득하여 즉시 투입 가능한 인재로 포지셔닝합니다.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ FOR WHO ══ -->
+    <section class="section-dark" id="for-who">
+      <div class="wrap">
+        <div class="section-eyebrow center">For Who</div>
+        <h2 class="sec-h2" style="color:var(--text);text-align:center;margin-bottom:44px;">이런 분들에게 빅링커 코칭이 필요합니다</h2>
+        <div class="who-cols">
+          <div class="who-card">
+            <div class="wc-tag">취업 준비생</div>
+            <h3>신입 취업 준비</h3>
+            <ul>
+              <li>학교 → 직장 연결이 어려운 분</li>
+              <li>원하는 직무로 전략적 접근이 필요한 분</li>
+              <li>스펙은 있지만 어필 방법을 모르는 분</li>
+            </ul>
+          </div>
+          <div class="who-card">
+            <div class="wc-tag">이직 준비 재직자</div>
+            <h3>경력 전환 &amp; 이직</h3>
+            <ul>
+              <li>직종 전환 또는 국내외 이직 희망</li>
+              <li>현재 이직 시사리 및 포지션 탐색 고민</li>
+              <li>연봉 협상 및 레벨업 전략이 필요한 분</li>
+            </ul>
+          </div>
+          <div class="who-card">
+            <div class="wc-tag">경력 단절 / 커리어 갭</div>
+            <h3>커리어 재시작</h3>
+            <ul>
+              <li>경력 기간에 대한 논리적 설명이 어려운 분</li>
+              <li>최신 산업 트렌드와의 간격을 줄이고 싶은 분</li>
+              <li>재취업 전략이 필요한 분</li>
+            </ul>
+          </div>
+        </div>
+        <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:28px;">위의 고민 중 하나라도 해당된다면, 현재의 취업 전략을 점검해야 할 시점입니다.</p>
+      </div>
+    </section>
+
+    <!-- ══ 비교표 (LIGHT) ══ -->
+    <section class="section-light" id="compare">
+      <div class="wrap">
+        <div class="section-eyebrow center">The Difference</div>
+        <h2 class="sec-h2" style="color:var(--header-text);text-align:center;margin-bottom:10px;">빅링커 vs. 일반 컨설팅</h2>
+        <p style="text-align:center;font-size:15px;color:var(--header-muted);margin-bottom:40px;">단순 합격을 넘어 직무 전문가로 성장하게 하는 빅링커만의 차별적 가치</p>
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>구분</th>
+              <th class="theirs">일반 취업 컨설팅</th>
+              <th class="ours">빅링커 하이엔드 코칭</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>코치진</td>
+              <td class="theirs">인사 담당자, 일반 컨설턴트 중심</td>
+              <td class="ours">해당 분야 현직 박사급 전문가</td>
+            </tr>
+            <tr>
+              <td>분석 방식</td>
+              <td class="theirs">채용 공고 기반의 서류 준비</td>
+              <td class="ours">산업 기술 트렌드 및 R&amp;D 정밀 분석</td>
+            </tr>
+            <tr>
+              <td>언어 사용</td>
+              <td class="theirs">추상적이고 일반적인 역량 표현</td>
+              <td class="ours">현업 중심의 정밀한 실무/기술 용어</td>
+            </tr>
+            <tr>
+              <td>목표</td>
+              <td class="theirs">단순 면접 합격 및 서류 통과</td>
+              <td class="ours">산업 생태계 내 직무 전문가로의 성장</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="compare-note">"빅링커 코칭은 단순한 훈련이 아닙니다. 데이터와 논리를 기반으로 기업이 필요로 하는 전문가로 재탄생시킵니다."</p>
+      </div>
+    </section>
+
+    <!-- ══ 4단계 프로세스 (DARK) ══ -->
+    <section class="section-dark" id="process">
+      <div class="wrap">
+        <div class="section-eyebrow center">4-Step Process</div>
+        <h2 class="sec-h2" style="color:var(--text);text-align:center;margin-bottom:10px;">빅링커 4단계 프로세스</h2>
+        <p style="text-align:center;font-size:15px;color:var(--muted);margin-bottom:56px;">단순 합격을 넘어 직무 전문가로 성장하는 체계적인 4주 집중 코칭 시스템</p>
+        <div class="process-grid">
+          <div class="process-item">
+            <div class="proc-circle">
+              <span class="proc-step">STEP</span>
+              <span class="proc-num">01</span>
+            </div>
+            <h3>역량 진단 및<br>코치 매칭</h3>
+            <ul>
+              <li>전공 및 연구 경험 분석</li>
+              <li>산업 현장 요구 역량 파악</li>
+              <li>분야별 박사급 코치 매칭</li>
+            </ul>
+          </div>
+          <div class="process-item">
+            <div class="proc-circle">
+              <span class="proc-step">STEP</span>
+              <span class="proc-num">02</span>
+            </div>
+            <h3>직무 정밀 분석</h3>
+            <ul>
+              <li>기술 트렌드 및 과제 분석</li>
+              <li>실무 전문 용어 학습</li>
+              <li>비즈니스 로직 구조화</li>
+            </ul>
+          </div>
+          <div class="process-item">
+            <div class="proc-circle">
+              <span class="proc-step">STEP</span>
+              <span class="proc-num">03</span>
+            </div>
+            <h3>콘텐츠 전략 설계</h3>
+            <ul>
+              <li>포트폴리오 고도화</li>
+              <li>기술 성과 논리 구조 정리</li>
+              <li>차별화된 USP 발굴</li>
+            </ul>
+          </div>
+          <div class="process-item">
+            <div class="proc-circle active">
+              <span class="proc-step">STEP</span>
+              <span class="proc-num">04</span>
+            </div>
+            <h3>엘리트 면접<br>시뮬레이션</h3>
+            <ul>
+              <li>기술/PT 면접 대응 훈련</li>
+              <li>압박 질문 대응 및 교정</li>
+              <li>논리적 답변 피드백</li>
+            </ul>
+          </div>
+        </div>
+        <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:40px;">각 단계는 개별적인 과정이 아닌, 전문가로의 성장을 위한 하나의 완성된 흐름으로 연결됩니다.</p>
+      </div>
+    </section>
+
+    <!-- ══ 4주 커리큘럼 (PANEL) ══ -->
+    <section class="section-panel" id="curriculum">
+      <div class="wrap">
+        <div class="section-eyebrow center">4-Week Curriculum</div>
+        <h2 class="sec-h2" style="color:var(--header-text);text-align:center;margin-bottom:10px;">4주 집중 코칭 커리큘럼</h2>
+        <p style="text-align:center;font-size:15px;color:var(--header-muted);margin-bottom:44px;">박사급 코치와 함께하는 주차별 밀착 로드맵: 역량 진단부터 최종 면접 리포트까지</p>
+        <div class="week-grid">
+          <div class="week-card">
+            <div class="week-tag">WEEK 01</div>
+            <h3>역량 구조화 및 매칭</h3>
+            <ul class="week-list">
+              <li>기술 경험의 가치 재정의</li>
+              <li>학술적/산업적 가치 분석</li>
+              <li>타겟 기업 파이프라인 분석</li>
+              <li>핵심 기술 스택 정밀 매칭</li>
+            </ul>
+            <div class="week-output">📄 산출물: 역량 진단 보고서</div>
+          </div>
+          <div class="week-card">
+            <div class="week-tag">WEEK 02</div>
+            <h3>직무 딥다이브 &amp; 실무 언어</h3>
+            <ul class="week-list">
+              <li>최신 논문/트렌드 기반 토론</li>
+              <li>기술적 난제 해결 로직 학습</li>
+              <li>현업 전문 용어 체득</li>
+              <li>기업 의사결정 로직 내재화</li>
+            </ul>
+            <div class="week-output">📝 산출물: 실무용어 및 기술 노트</div>
+          </div>
+          <div class="week-card">
+            <div class="week-tag">WEEK 03</div>
+            <h3>전략적 콘텐츠 최적화</h3>
+            <ul class="week-list">
+              <li>기술서/포트폴리오 논리 보완</li>
+              <li>박사급 시각의 검토 및 피드백</li>
+              <li>기업 미래 가치 연결 스토리</li>
+              <li>High-End 퍼스널 브랜딩</li>
+            </ul>
+            <div class="week-output">📁 산출물: 하이엔드 포트폴리오</div>
+          </div>
+          <div class="week-card highlight">
+            <div class="week-tag">WEEK 04</div>
+            <h3>엘리트 시뮬레이션</h3>
+            <ul class="week-list">
+              <li>1:1 기술 압박 면접 시뮬레이션</li>
+              <li>답변 논리 구조 최종 검증</li>
+              <li>전문가 커뮤니케이션 화법</li>
+              <li>비즈니스 매너 및 이미지 완성</li>
+            </ul>
+            <div class="week-output">🏆 산출물: 최종 면접 피드백 리포트</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 직무별 전문 분야 (DARK) ══ -->
+    <section class="section-dark" id="domains">
+      <div class="wrap">
+        <div class="section-eyebrow center">Specializations</div>
+        <h2 class="sec-h2" style="color:var(--text);text-align:center;margin-bottom:10px;">직무별 전문코칭 분야</h2>
+        <p style="text-align:center;font-size:15px;color:var(--muted);margin-bottom:44px;">각 분야별 현직 박사급 전문가가 직접 코칭하여 직무 완성도를 달성합니다.</p>
+        <div class="domain-grid">
+          <div class="domain-card">
+            <div class="d-head">
+              <div class="d-icon">⚗️</div>
+              <h3>R&amp;D 및 엔지니어링</h3>
+            </div>
+            <div class="domain-tags">
+              <span class="domain-tag">반도체/배터리</span>
+              <span class="domain-tag">모빌리티/전기차</span>
+              <span class="domain-tag">소재 공학</span>
+              <span class="domain-tag">나노 기술</span>
+              <span class="domain-tag">디스플레이</span>
+              <span class="domain-tag">광학</span>
+            </div>
+          </div>
+          <div class="domain-card">
+            <div class="d-head">
+              <div class="d-icon">🤖</div>
+              <h3>데이터 사이언스 &amp; AI</h3>
+            </div>
+            <div class="domain-tags">
+              <span class="domain-tag">머신러닝/딥러닝</span>
+              <span class="domain-tag">데이터분석/통계</span>
+              <span class="domain-tag">소프트웨어 개발</span>
+              <span class="domain-tag">알고리즘 설계</span>
+            </div>
+          </div>
+          <div class="domain-card">
+            <div class="d-head">
+              <div class="d-icon">🧬</div>
+              <h3>바이오 및 화학</h3>
+            </div>
+            <div class="domain-tags">
+              <span class="domain-tag">신약 개발</span>
+              <span class="domain-tag">임상 연구</span>
+              <span class="domain-tag">바이오 공정</span>
+              <span class="domain-tag">의료 기기</span>
+              <span class="domain-tag">헬스케어</span>
+              <span class="domain-tag">정밀 화학</span>
+            </div>
+          </div>
+          <div class="domain-card">
+            <div class="d-head">
+              <div class="d-icon">📊</div>
+              <h3>전략 및 경영</h3>
+            </div>
+            <div class="domain-tags">
+              <span class="domain-tag">전략 기획</span>
+              <span class="domain-tag">사업 개발</span>
+              <span class="domain-tag">M&amp;A/투자 심사</span>
+              <span class="domain-tag">마케팅 전략</span>
+              <span class="domain-tag">데이터 분석</span>
+            </div>
+          </div>
+          <div class="domain-card">
+            <div class="d-head">
+              <div class="d-icon">🏛️</div>
+              <h3>인문사회 및 정책</h3>
+            </div>
+            <div class="domain-tags">
+              <span class="domain-tag">HR/인사 관리</span>
+              <span class="domain-tag">ESG</span>
+              <span class="domain-tag">지속가능 경영</span>
+              <span class="domain-tag">공공 정책</span>
+              <span class="domain-tag">거버넌스</span>
+            </div>
+          </div>
+        </div>
+        <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:32px;">해당 분야공 박사급 전문가가 지원자의 합격을 직접 코칭합니다.</p>
+      </div>
+    </section>
+
+    <!-- ══ 성공 사례 (LIGHT) ══ -->
+    <section class="section-light" id="cases">
+      <div class="wrap">
+        <div class="section-eyebrow center">Success Cases</div>
+        <h2 class="sec-h2" style="color:var(--header-text);text-align:center;margin-bottom:44px;">합격 성공 사례</h2>
+        <div class="case-intro">
+          <div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div class="ba-box before">
+                <div class="ba-label">Before</div>
+                <div class="ba-list">
+                  <div class="ba-item"><div class="ba-dot"></div>평범한 이력 및 면접 부재</div>
+                  <div class="ba-item"><div class="ba-dot"></div>막연한 직무 탐색</div>
+                  <div class="ba-item"><div class="ba-dot"></div>단순 스펙 위주의 나열</div>
+                </div>
+              </div>
+              <div class="ba-box after">
+                <div class="ba-label">After</div>
+                <div class="ba-list">
+                  <div class="ba-item"><div class="ba-dot"></div>타겟 맞춤형 전략 완성</div>
+                  <div class="ba-item"><div class="ba-dot"></div>구조화된 면접으로 차별화</div>
+                  <div class="ba-item"><div class="ba-dot"></div>직무 핵심 스토리텔링</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p style="font-size:15px;color:var(--header-text);font-weight:700;margin-bottom:6px;">"단순 합격 넘어, 기업이 원하는 문제 해결형 인재로 완벽한 변모"</p>
+            <p style="font-size:14px;color:var(--header-muted);line-height:1.8;">빅링커 코칭은 지원자의 현재 상황을 철저히 분석하여 가장 직결적인 성공 루트를 설계합니다. 박사급 전문가의 시각으로 재해석된 자기소개서와 MECE 기반 구조화된 면접 답변으로 합격률을 극대화합니다.</p>
+          </div>
+        </div>
+        <div class="case-cards">
+          <div class="case-card">
+            <div class="case-badge">대기업 IT 취업</div>
+            <p>3수를 거듭하던 취업 준비생이 빅링커 코칭을 통해 국내 대형 IT 기업 신입 최종 합격. 박사급 코치의 기술 면접 준비와 MECE 기반 답변 구조화가 결정적이었습니다.</p>
+            <div class="c-result">→ 목표 기업 최종 합격</div>
+          </div>
+          <div class="case-card">
+            <div class="case-badge">UX 디자이너 이직</div>
+            <p>3년차 UX 디자이너가 빅링커 포트폴리오 고도화 코칭을 통해 이직 시 연봉 30% 상승 달성. 비즈니스 로직 기반 한결 스토리텔링이 탁월한 성과로 이어졌습니다.</p>
+            <div class="c-result">→ 연봉 30% 상승 이직 성공</div>
+          </div>
+          <div class="case-card">
+            <div class="case-badge">경력 단절 재취업</div>
+            <p>4년간 경력 단절 후 커리어 관련점과 갭 기간을 전략적으로 재해석. 빅링커 코칭 2개월 만에 관련 업계 정규직 재취업에 성공했습니다.</p>
+            <div class="c-result">→ 복귀 2개월 만에 재취업</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ REVIEW MARQUEE ══ -->
+    <section class="review-band">
+      <div class="review-band-head">
+        <h2>수강생들의 생생한 후기</h2>
+        <p>빅링커 취업 코칭을 통해 커리어를 바꾼 분들의 이야기</p>
+      </div>
+      <div class="review-marquee-wrap">
+        <!-- ROW 1 -->
+        <div class="review-marquee-row">
+          <div class="review-mini accent-blue">
+            <div class="star-row">★★★★★</div>
+            <p>"박사급 현직 전문가가 제 연구 경험을 기업이 원하는 언어로 바꿔주는 과정이 정말 놀라웠어요. 면접에서 처음으로 자신감 있게 답변했고 최종 합격했습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">김</div><div class="review-mini-info"><strong>김성준</strong><span>삼성전자 반도체 연구원 합격</span></div></div>
+          </div>
+          <div class="review-mini">
+            <div class="star-row">★★★★★</div>
+            <p>"MECE 구조로 면접 답변을 설계하는 방법을 배우고 나서 제 답변이 완전히 달라졌어요. 면접관이 '논리적이다'고 말씀하시더니 최종 합격했습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">이</div><div class="review-mini-info"><strong>이지현</strong><span>LG화학 데이터분석 합격</span></div></div>
+          </div>
+          <div class="review-mini accent-purple">
+            <div class="star-row">★★★★★</div>
+            <p>"4년간 경력 단절 후 재취업이 막막했는데 빅링커 코치님이 갭 기간을 오히려 강점으로 바꿔주셨어요. 2개월 만에 원하던 직군으로 복귀했습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">박</div><div class="review-mini-info"><strong>박미선</strong><span>제약사 임상 연구원 재취업</span></div></div>
+          </div>
+          <div class="review-mini">
+            <div class="star-row">★★★★★</div>
+            <p>"실무 용어를 제대로 배운 게 가장 컸어요. 같은 내용인데 표현 방식이 달라지니까 면접관의 반응이 완전히 달라졌습니다. 연봉도 30% 올려서 이직했어요."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">최</div><div class="review-mini-info"><strong>최동현</strong><span>네이버 UX 30% 연봉 상승</span></div></div>
+          </div>
+          <div class="review-mini accent-blue">
+            <div class="star-row">★★★★★</div>
+            <p>"압박 면접 시뮬레이션을 실제처럼 여러 번 연습하니 실전에서 전혀 긴장이 없었어요. 기술 PT도 완벽히 준비되어 있었고 최종 합격 통보를 받았습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">정</div><div class="review-mini-info"><strong>정유진</strong><span>현대자동차 배터리 연구 합격</span></div></div>
+          </div>
+          <div class="review-mini">
+            <div class="star-row">★★★★★</div>
+            <p>"3수를 하다가 빅링커를 만났어요. 내 스펙의 문제가 아니라 표현 방식의 문제였다는 걸 깨달았고, 코칭 후 첫 면접에서 바로 합격했습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">한</div><div class="review-mini-info"><strong>한규민</strong><span>카카오 데이터사이언티스트</span></div></div>
+          </div>
+          <!-- SET B duplicate -->
+          <div class="review-mini accent-blue">
+            <div class="star-row">★★★★★</div>
+            <p>"박사급 현직 전문가가 제 연구 경험을 기업이 원하는 언어로 바꿔주는 과정이 정말 놀라웠어요. 면접에서 처음으로 자신감 있게 답변했고 최종 합격했습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">김</div><div class="review-mini-info"><strong>김성준</strong><span>삼성전자 반도체 연구원 합격</span></div></div>
+          </div>
+          <div class="review-mini">
+            <div class="star-row">★★★★★</div>
+            <p>"MECE 구조로 면접 답변을 설계하는 방법을 배우고 나서 제 답변이 완전히 달라졌어요. 면접관이 '논리적이다'고 말씀하시더니 최종 합격했습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">이</div><div class="review-mini-info"><strong>이지현</strong><span>LG화학 데이터분석 합격</span></div></div>
+          </div>
+          <div class="review-mini accent-purple">
+            <div class="star-row">★★★★★</div>
+            <p>"4년간 경력 단절 후 재취업이 막막했는데 빅링커 코치님이 갭 기간을 오히려 강점으로 바꿔주셨어요. 2개월 만에 원하던 직군으로 복귀했습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">박</div><div class="review-mini-info"><strong>박미선</strong><span>제약사 임상 연구원 재취업</span></div></div>
+          </div>
+          <div class="review-mini">
+            <div class="star-row">★★★★★</div>
+            <p>"실무 용어를 제대로 배운 게 가장 컸어요. 같은 내용인데 표현 방식이 달라지니까 면접관의 반응이 완전히 달라졌습니다. 연봉도 30% 올려서 이직했어요."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">최</div><div class="review-mini-info"><strong>최동현</strong><span>네이버 UX 30% 연봉 상승</span></div></div>
+          </div>
+          <div class="review-mini accent-blue">
+            <div class="star-row">★★★★★</div>
+            <p>"압박 면접 시뮬레이션을 실제처럼 여러 번 연습하니 실전에서 전혀 긴장이 없었어요. 기술 PT도 완벽히 준비되어 있었고 최종 합격 통보를 받았습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">정</div><div class="review-mini-info"><strong>정유진</strong><span>현대자동차 배터리 연구 합격</span></div></div>
+          </div>
+          <div class="review-mini">
+            <div class="star-row">★★★★★</div>
+            <p>"3수를 하다가 빅링커를 만났어요. 내 스펙의 문제가 아니라 표현 방식의 문제였다는 걸 깨달았고, 코칭 후 첫 면접에서 바로 합격했습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">한</div><div class="review-mini-info"><strong>한규민</strong><span>카카오 데이터사이언티스트</span></div></div>
+          </div>
+        </div>
+        <!-- ROW 2 -->
+        <div class="review-marquee-row">
+          <div class="review-mini">
+            <div class="star-row">★★★★★</div>
+            <p>"포트폴리오를 박사급 코치님과 함께 처음부터 다시 만들었는데, 완성된 결과물이 이전과 차원이 달랐어요. 탈락이 반복되던 이직 과정에서 단번에 합격했습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">오</div><div class="review-mini-info"><strong>오승환</strong><span>SK하이닉스 소재 연구직 이직</span></div></div>
+          </div>
+          <div class="review-mini accent-purple">
+            <div class="star-row">★★★★★</div>
+            <p>"AI 스타트업에서 대기업으로 이직을 원했는데, 빅링커 코칭이 제 연구 경험을 대기업이 원하는 방식으로 재해석해줬어요. 결국 두 곳에서 오퍼를 받았습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">윤</div><div class="review-mini-info"><strong>윤채은</strong><span>삼성SDS AI 연구팀 이직</span></div></div>
+          </div>
+          <div class="review-mini accent-blue">
+            <div class="star-row">★★★★★</div>
+            <p>"ESG 분야로 커리어를 전환하려 했는데 어떻게 준비해야 할지 막막했어요. 빅링커 코치님이 학문적 배경을 ESG 실무 언어로 연결해주셔서 성공적으로 전환했습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">강</div><div class="review-mini-info"><strong>강보름</strong><span>포스코 ESG 전략팀 합격</span></div></div>
+          </div>
+          <div class="review-mini">
+            <div class="star-row">★★★★★</div>
+            <p>"바이오 스타트업에서 대형 제약사로 이직할 때 임상 경험을 어떻게 표현할지 몰랐어요. 코치님이 데이터 중심으로 재구성해주셔서 인상적인 이직을 할 수 있었습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">신</div><div class="review-mini-info"><strong>신민아</strong><span>종근당 임상개발팀 이직</span></div></div>
+          </div>
+          <div class="review-mini accent-blue">
+            <div class="star-row">★★★★★</div>
+            <p>"반도체 장비 엔지니어로 취업을 준비했는데 기술 면접이 항상 발목을 잡았어요. 빅링커 코칭 후 기술적 논리를 구조화하는 방법을 배우고 최종 합격했습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">임</div><div class="review-mini-info"><strong>임재혁</strong><span>ASML 장비 엔지니어 합격</span></div></div>
+          </div>
+          <!-- SET B -->
+          <div class="review-mini">
+            <div class="star-row">★★★★★</div>
+            <p>"포트폴리오를 박사급 코치님과 함께 처음부터 다시 만들었는데, 완성된 결과물이 이전과 차원이 달랐어요. 탈락이 반복되던 이직 과정에서 단번에 합격했습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">오</div><div class="review-mini-info"><strong>오승환</strong><span>SK하이닉스 소재 연구직 이직</span></div></div>
+          </div>
+          <div class="review-mini accent-purple">
+            <div class="star-row">★★★★★</div>
+            <p>"AI 스타트업에서 대기업으로 이직을 원했는데, 빅링커 코칭이 제 연구 경험을 대기업이 원하는 방식으로 재해석해줬어요. 결국 두 곳에서 오퍼를 받았습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">윤</div><div class="review-mini-info"><strong>윤채은</strong><span>삼성SDS AI 연구팀 이직</span></div></div>
+          </div>
+          <div class="review-mini accent-blue">
+            <div class="star-row">★★★★★</div>
+            <p>"ESG 분야로 커리어를 전환하려 했는데 어떻게 준비해야 할지 막막했어요. 빅링커 코치님이 학문적 배경을 ESG 실무 언어로 연결해주셔서 성공적으로 전환했습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">강</div><div class="review-mini-info"><strong>강보름</strong><span>포스코 ESG 전략팀 합격</span></div></div>
+          </div>
+          <div class="review-mini">
+            <div class="star-row">★★★★★</div>
+            <p>"바이오 스타트업에서 대형 제약사로 이직할 때 임상 경험을 어떻게 표현할지 몰랐어요. 코치님이 데이터 중심으로 재구성해주셔서 인상적인 이직을 할 수 있었습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">신</div><div class="review-mini-info"><strong>신민아</strong><span>종근당 임상개발팀 이직</span></div></div>
+          </div>
+          <div class="review-mini accent-blue">
+            <div class="star-row">★★★★★</div>
+            <p>"반도체 장비 엔지니어로 취업을 준비했는데 기술 면접이 항상 발목을 잡았어요. 빅링커 코칭 후 기술적 논리를 구조화하는 방법을 배우고 최종 합격했습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">임</div><div class="review-mini-info"><strong>임재혁</strong><span>ASML 장비 엔지니어 합격</span></div></div>
+          </div>
+        </div>
+        <!-- ROW 3 -->
+        <div class="review-marquee-row">
+          <div class="review-mini accent-purple">
+            <div class="star-row">★★★★★</div>
+            <p>"MBA 졸업 후 전략 컨설팅 이직을 준비했는데 케이스 인터뷰 준비가 막막했어요. 빅링커 코치님이 MECE 기반으로 체계화해주셔서 맥킨지 최종 면접까지 진출했습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">류</div><div class="review-mini-info"><strong>류준혁</strong><span>전략 컨설팅 최종 면접 진출</span></div></div>
+          </div>
+          <div class="review-mini">
+            <div class="star-row">★★★★★</div>
+            <p>"나노 소재 연구를 했는데 기업 면접에서 어떻게 설명해야 할지 항상 어려웠어요. 코치님이 비즈니스 임팩트 중심으로 재구성해주시니 면접관 반응이 완전히 달라졌습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">문</div><div class="review-mini-info"><strong>문현우</strong><span>LG이노텍 소재 연구 합격</span></div></div>
+          </div>
+          <div class="review-mini accent-blue">
+            <div class="star-row">★★★★★</div>
+            <p>"데이터 사이언티스트로 취업하려 했는데 포트폴리오가 너무 학문적이었어요. 빅링커 코칭 후 비즈니스 문제 해결 중심으로 재구성하니 원하던 기업에 합격했습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">배</div><div class="review-mini-info"><strong>배소희</strong><span>토스 데이터사이언티스트 합격</span></div></div>
+          </div>
+          <div class="review-mini">
+            <div class="star-row">★★★★★</div>
+            <p>"HR 직무로 이직을 원했는데 현재 직무와 너무 다른 게 걱정이었어요. 코치님이 기존 경험에서 HR 역량을 끌어내는 방법을 알려주셔서 성공적으로 전환했습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">전</div><div class="review-mini-info"><strong>전수민</strong><span>현대건설 HR 팀 합격</span></div></div>
+          </div>
+          <div class="review-mini accent-purple">
+            <div class="star-row">★★★★★</div>
+            <p>"4주 프로그램이 짧다고 생각했는데 밀도가 너무 높았어요. 매주 산출물이 쌓이고 최종 면접 피드백 리포트까지 받으니 완전히 준비된 느낌이었습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">장</div><div class="review-mini-info"><strong>장도준</strong><span>삼성바이오로직스 공정 합격</span></div></div>
+          </div>
+          <!-- SET B -->
+          <div class="review-mini accent-purple">
+            <div class="star-row">★★★★★</div>
+            <p>"MBA 졸업 후 전략 컨설팅 이직을 준비했는데 케이스 인터뷰 준비가 막막했어요. 빅링커 코치님이 MECE 기반으로 체계화해주셔서 맥킨지 최종 면접까지 진출했습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">류</div><div class="review-mini-info"><strong>류준혁</strong><span>전략 컨설팅 최종 면접 진출</span></div></div>
+          </div>
+          <div class="review-mini">
+            <div class="star-row">★★★★★</div>
+            <p>"나노 소재 연구를 했는데 기업 면접에서 어떻게 설명해야 할지 항상 어려웠어요. 코치님이 비즈니스 임팩트 중심으로 재구성해주시니 면접관 반응이 완전히 달라졌습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">문</div><div class="review-mini-info"><strong>문현우</strong><span>LG이노텍 소재 연구 합격</span></div></div>
+          </div>
+          <div class="review-mini accent-blue">
+            <div class="star-row">★★★★★</div>
+            <p>"데이터 사이언티스트로 취업하려 했는데 포트폴리오가 너무 학문적이었어요. 빅링커 코칭 후 비즈니스 문제 해결 중심으로 재구성하니 원하던 기업에 합격했습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">배</div><div class="review-mini-info"><strong>배소희</strong><span>토스 데이터사이언티스트 합격</span></div></div>
+          </div>
+          <div class="review-mini">
+            <div class="star-row">★★★★★</div>
+            <p>"HR 직무로 이직을 원했는데 현재 직무와 너무 다른 게 걱정이었어요. 코치님이 기존 경험에서 HR 역량을 끌어내는 방법을 알려주셔서 성공적으로 전환했습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">전</div><div class="review-mini-info"><strong>전수민</strong><span>현대건설 HR 팀 합격</span></div></div>
+          </div>
+          <div class="review-mini accent-purple">
+            <div class="star-row">★★★★★</div>
+            <p>"4주 프로그램이 짧다고 생각했는데 밀도가 너무 높았어요. 매주 산출물이 쌓이고 최종 면접 피드백 리포트까지 받으니 완전히 준비된 느낌이었습니다."</p>
+            <div class="review-mini-meta"><div class="review-mini-avatar">장</div><div class="review-mini-info"><strong>장도준</strong><span>삼성바이오로직스 공정 합격</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ FAQ ══ -->
+    <section class="faq-band">
+      <div class="wrap">
+        <div style="max-width:780px;margin:0 auto;">
+          <div class="faq-title">자주 묻는 질문</div>
+          <details open>
+            <summary>박사 학위가 없어도 코칭을 받을 수 있나요? <span class="faq-arrow">▾</span></summary>
+            <p>네, 학력과 무관하게 누구나 수강 가능합니다. 빅링커 코칭은 박사급 전문가가 코치로 참여하는 것이지, 수강생이 박사 학위를 요구하는 것이 아닙니다. 석사, 학사, 경력자 모두 각자의 배경을 직무 중심으로 재구성하는 코칭을 받습니다.</p>
+          </details>
+          <details>
+            <summary>코칭 기간은 얼마나 되나요? <span class="faq-arrow">▾</span></summary>
+            <p>기본 과정은 4주 집중 코칭입니다. 목표와 상황에 따라 2주 단기 집중 또는 8주 심화 과정도 운영합니다. 초기 상담에서 현재 상황과 목표 일정을 파악하여 최적의 과정을 추천해드립니다.</p>
+          </details>
+          <details>
+            <summary>어떤 산출물을 받을 수 있나요? <span class="faq-arrow">▾</span></summary>
+            <p>역량 진단 보고서, 실무용어 및 기술 노트, 하이엔드 포트폴리오, 최종 면접 피드백 리포트 등 4가지 주요 산출물을 제공합니다. 각 산출물은 실제 취업 활동에 즉시 활용 가능한 형태로 완성됩니다.</p>
+          </details>
+          <details>
+            <summary>어떤 기업 취업을 지원하나요? <span class="faq-arrow">▾</span></summary>
+            <p>삼성, LG, SK, 현대, 카카오, 네이버 등 국내 대기업부터 글로벌 기업, 컨설팅 펌, 스타트업까지 목표 기업에 따라 맞춤형 전략을 설계합니다. 특히 R&D, 데이터, 바이오, 전략 분야의 전문직 취업에 강점이 있습니다.</p>
+          </details>
+          <details>
+            <summary>이직 준비도 도움이 되나요? <span class="faq-arrow">▾</span></summary>
+            <p>네, 현재 재직자의 이직 준비도 핵심 코칭 영역 중 하나입니다. 현재 직무 경험을 목표 직무의 언어로 재해석하고, 이직 사유를 논리적으로 설득력 있게 표현하는 방법, 연봉 협상 전략까지 함께 준비합니다.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ CTA ══ -->
+    <section class="cta-band" id="cta">
+      <div class="wrap">
+        <div class="cta-inner">
+          <div class="cta-badge">취업 경쟁력, 빅링커와 함께</div>
+          <h2>취업 경쟁력,<br>빅링커와 함께!</h2>
+          <p>박사급 전문가의 시각으로 당신의 경험을 재해석합니다.<br>지금 바로 상담을 신청하고 취업 전략을 점검해보세요.</p>
+          <a class="btn-primary" href="mailto:biglinkerkor@gmail.com" style="margin:0 auto;display:inline-flex;">무료 상담 신청하기 →</a>
+          <div class="cta-contact">
+            <div class="cta-contact-item">📞 <strong>02-2039-8584</strong></div>
+            <div class="cta-contact-item">✉️ <strong>biglinkerkor@gmail.com</strong></div>
+            <div class="cta-contact-item">📍 서울특별시 금천구 디지털로9길 32, B동 1901호</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ══ FOOTER ══ -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div>
+          <div class="footer-logo">BigLinker</div>
+          <p class="footer-brand-desc">입시·대학원·학업계획서·논문·면접 코칭 전문<br>박사급 전문가와 함께하는 하이엔드 취업 코칭</p>
+          <div class="footer-sns">
+            <button class="footer-sns-btn" aria-label="Instagram">IG</button>
+            <button class="footer-sns-btn" aria-label="YouTube">YT</button>
+            <button class="footer-sns-btn" aria-label="Blog">BL</button>
+          </div>
+        </div>
+        <div class="footer-nav-grid">
+          <div class="footer-nav-group">
+            <h4>서비스</h4>
+            <a href="./admissions.html">대입코칭</a>
+            <a href="./self-introduction.html">페이퍼코칭</a>
+            <a href="./interview-coaching.html">면접코칭</a>
+            <a href="./thesis-coaching.html">논문코칭</a>
+            <a href="./ec-coaching.html">EC코칭</a>
+            <a href="./design-coaching.html">디자인코칭</a>
+            <a href="./career-coaching.html">취업코칭</a>
+          </div>
+          <div class="footer-nav-group">
+            <h4>리소스</h4>
+            <a href="#">블로그</a>
+            <a href="#">리얼 TIP</a>
+            <a href="#">합격 사례</a>
+            <a href="#">무료 가이드</a>
+          </div>
+          <div class="footer-nav-group">
+            <h4>회사</h4>
+            <a href="#">빅링커 소개</a>
+            <a href="#">코치 소개</a>
+            <a href="#">이용 약관</a>
+            <a href="#">개인정보처리방침</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-legal">© 2026 BigLinker. All rights reserved.<br>사업자등록번호: 000-00-00000 | 대표: 빅링커 | 서울특별시 금천구 디지털로9길 32, B동 1901호</div>
+        <div class="footer-policy-links">
+          <a href="#">이용약관</a>
+          <a href="#">개인정보처리방침</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Mobile CTA -->
+  <div class="mobile-floating-cta">
+    <div>
+      <strong>하이엔드 취업 코칭</strong>
+      <span>지금 무료 상담 신청하기</span>
+    </div>
+    <a class="btn-primary" href="#cta" style="min-height:40px;padding:0 18px;font-size:13px;flex-shrink:0;">신청 →</a>
+  </div>
+
+  <script>
+    const topShell = document.getElementById('topShell');
+    let lastY = 0;
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      if (y > 220 && y > lastY) topShell.classList.add('is-collapsed');
+      else topShell.classList.remove('is-collapsed');
+      lastY = y;
+    }, { passive: true });
+  </script>
+</body>
+</html>
