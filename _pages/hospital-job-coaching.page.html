@@ -1,15 +1,13 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BigLinker 병원 취업 코칭</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css">
-  <style>
-:root {
+<!-- META
+TITLE: BigLinker 병원 취업 코칭
+HEADER_PROMO: 2026 합격전략 가이드 오픈
+ACTIVE_TAB: hospital-job-coaching
+-->
+
+<!-- PAGE_CSS -->
+<style>
+
+    :root {
       --header-bg: #f6f7fb; --header-surface: #ffffff; --header-line: #e5e8ef;
       --header-line-strong: #d7dbe5; --header-text: #17191f; --header-muted: #6e7687;
       --bg: #0b0e13; --bg-soft: #121722; --bg-dark: #090c11; --panel: #f5f6fb;
@@ -298,156 +296,20 @@
       .footer-top { grid-template-columns: 1fr; gap: 32px; }
       .footer-nav-grid { grid-template-columns: 1fr 1fr; }
     }
-    /* ══════════════════════════════════════════
-       HEADER — common (partials/header.css)
-    ══════════════════════════════════════════ */
-    .top-shell {
-      position: sticky; top: 0; z-index: 120;
-      background: rgba(255,255,255,0.92);
-      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--header-line);
-      transition: transform 0.28s ease, box-shadow 0.28s ease, opacity 0.28s ease;
-    }
-    .top-shell.is-scrolled { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-    .top-shell.is-collapsed { transform: translateY(-100%); opacity: 0; }
-    .sticky-category-shell {
-      position: sticky; top: 0; z-index: 110;
-      background: rgba(248,249,252,0.96);
-      border-bottom: 1px solid var(--header-line);
-      backdrop-filter: blur(12px);
-    }
-    .family-bar { background: transparent; }
-    .family-outer { display: flex; justify-content: center; padding: 8px 0; }
-    .family-wrap {
-      display: flex; align-items: center; justify-content: center;
-      gap: 4px; min-height: 40px; padding: 3px;
-      border: 1px solid var(--header-line-strong); border-radius: 14px;
-      background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.07);
-      overflow-x: auto; scrollbar-width: none; white-space: nowrap;
-    }
-    .family-wrap::-webkit-scrollbar { display: none; }
-    .family-link {
-      flex: 0 0 auto; padding: 6px 14px; border-radius: 10px;
-      font-size: 12px; font-weight: 700; color: var(--header-muted);
-      transition: background 0.18s, color 0.18s;
-    }
-    .family-link.is-active { background: var(--brand-soft); color: var(--brand); }
-    .family-link:not(.is-active):hover { background: #f8f9fc; color: var(--header-text); }
-    .main-header { background: transparent; }
-    .main-header-wrap {
-      display: grid; grid-template-columns: 1fr auto 1fr;
-      align-items: center; gap: 16px; min-height: 70px;
-    }
-    .header-promo {
-      justify-self: start; align-self: stretch; display: flex; align-items: center;
-      padding: 0 14px; border-radius: 0 0 12px 12px;
-      border: 1px solid #dde2ff; border-top: 0;
-      background: var(--brand-soft);
-      color: var(--brand); font-size: 12px; font-weight: 700; white-space: nowrap;
-    }
-    .brand { display: flex; flex-direction: column; align-items: center; justify-self: center; text-align: center; gap: 4px; }
-    .brand-mark { width: 120px; height: 40px; object-fit: contain; }
-    .brand-copy span { display: block; color: var(--header-muted); font-size: 11px; line-height: 1.4; }
-    .header-actions { display: flex; align-items: center; justify-self: end; gap: 8px; }
-    .cta-btn {
-      display: inline-flex; align-items: center; justify-content: center;
-      min-height: 36px; padding: 0 16px; border-radius: 10px;
-      border: 1px solid var(--brand); background: var(--brand);
-      color: #fff; font-weight: 700; font-size: 13px;
-      transition: background 0.18s, transform 0.18s;
-    }
-    .cta-btn:hover { background: #3a58ef; transform: translateY(-1px); }
-    .category-row {
-      display: grid; grid-template-columns: 1fr auto 1fr;
-      align-items: center; min-height: 52px; gap: 12px;
-    }
-    .category-balance { justify-self: start; width: 120px; }
-    .category-tabs {
-      display: flex; align-items: center; justify-content: center;
-      gap: 2px; overflow-x: auto; scrollbar-width: none; white-space: nowrap;
-    }
-    .category-tabs::-webkit-scrollbar { display: none; }
-    .category-tab {
-      flex: 0 0 auto; position: relative; padding: 0 14px; min-height: 44px;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-size: 13px; font-weight: 700; color: var(--header-muted);
-      transition: color 0.18s;
-    }
-    .category-tab:hover { color: var(--header-text); }
-    .category-tab.is-active { color: var(--brand); }
-    .category-tab.is-active::after {
-      content: ""; position: absolute; left: 14px; right: 14px; bottom: 0;
-      height: 2px; background: var(--brand); border-radius: 999px;
-    }
-    .category-utility { display: flex; align-items: center; justify-self: end; gap: 6px; width: 200px; }
-    .utility-link {
-      display: inline-flex; align-items: center; justify-content: center;
-      min-height: 26px; padding: 0 10px; border-radius: 999px;
-      border: 1px solid var(--header-line); background: #fff;
-      color: var(--header-muted); font-size: 11px; font-weight: 700; cursor: pointer;
-      transition: background 0.18s, color 0.18s, border-color 0.18s;
-    }
-    .utility-link:hover { background: var(--brand-soft); color: var(--brand); border-color: #dde2ff; }
-    @media (max-width: 760px) {
-      .inner { padding: 0 16px; }
-      .main-header-wrap, .category-row { grid-template-columns: 1fr; gap: 10px; }
-      .header-promo, .header-actions { display: none; }
-      .brand { justify-self: center; }
-      .category-balance { display: none; }
-      .category-tabs, .category-utility { justify-content: flex-start; }
-      .sticky-category-shell .category-utility { display: none !important; }
-    }
+</style>
+<!-- /PAGE_CSS -->
 
-  </style>
-</head>
-<body>
-
-  <!-- ══ HEADER (generated from _partials/header.html) ══ -->
-  <div class="top-shell" id="topShell">
-    <header class="main-header">
-      <div class="inner">
-        <div class="main-header-wrap">
-          <div class="header-promo">2026 합격전략 가이드 오픈</div>
-          <a class="brand" href="./index.html">
-            <img class="brand-mark" src="./assets/biglinker-logo.png" alt="빅링커 로고">
-            <div class="brand-copy"><span>기업면접·병원취업·임용 코칭 전문</span></div>
-          </a>
-          <div class="header-actions">
-            <a class="cta-btn" href="#cta">상담 신청</a>
-          </div>
-        </div>
-      </div>
-    </header>
-    <div class="family-bar">
-      <div class="inner">
-        <div class="family-outer">
-          <div class="family-wrap">
-            <a class="family-link " href="https://transfer.gobiglinker.com/">대학&amp;편입</a>
-            <a class="family-link " href="https://graduate.gobiglinker.com/">대학원&amp;논문</a>
-            <a class="family-link is-active" href="https://job.gobiglinker.com/">취업</a>
-            <a class="family-link " href="https://biz.gobiglinker.com/">기업교육</a>
-          </div>
-        </div>
-      </div>
+<!-- MOBILE_CTA -->
+<div class="mobile-floating-cta">
+    <div>
+      <strong>병원 취업 코칭</strong>
+      <span>지금 무료 상담 신청하기</span>
     </div>
+    <a class="btn-primary" href="#cta" style="min-height:40px;padding:0 18px;font-size:13px;flex-shrink:0;">신청 →</a>
   </div>
+<!-- /MOBILE_CTA -->
 
-  <div class="sticky-category-shell">
-    <div class="inner">
-      <div class="category-row">
-        <div class="category-balance" aria-hidden="true"></div>
-        <nav class="category-tabs" aria-label="서비스 카테고리">
-          <a class="category-tab" href="./corporate-interview-coaching.html">기업면접리드코칭</a>
-          <a class="category-tab is-active" href="./hospital-job-coaching.html">병원리드코칭</a>
-        </nav>
-        <div class="category-utility" aria-label="콘텐츠 바로가기">
-          <button class="utility-link" type="button">블로그</button>
-          <button class="utility-link" type="button">리얼 TIP</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
+<!-- MAIN -->
 <!-- ══ HERO ══ -->
     <section class="hero">
       <div class="wrap">
@@ -969,90 +831,4 @@
         </div>
       </div>
     </section>
-
-  <footer class="site-footer">
-    <div class="footer-inner">
-      <div class="footer-top">
-        <div class="footer-brand-area">
-          <div class="footer-logo">BigLinker</div>
-          <p class="footer-brand-desc">기업면접·병원취업·임용 코칭 전문.<br>지원자의 역량을 합격의 언어로 설계합니다.</p>
-          <div class="footer-sns">
-            <button class="footer-sns-btn" aria-label="Instagram">IG</button>
-            <button class="footer-sns-btn" aria-label="YouTube">YT</button>
-            <button class="footer-sns-btn" aria-label="Blog">BL</button>
-          </div>
-        </div>
-        <div class="footer-nav-grid">
-          <div class="footer-nav-group">
-            <h4>서비스</h4>
-            <a href="./corporate-interview-coaching.html">기업면접리드코칭</a>
-            <a href="./hospital-job-coaching.html">병원리드코칭</a>
-          </div>
-          <div class="footer-nav-group">
-            <h4>콘텐츠</h4>
-            <a href="#">블로그</a>
-            <a href="#">리얼 TIP</a>
-            <a href="#">합격 사례</a>
-            <a href="#">무료 가이드</a>
-          </div>
-          <div class="footer-nav-group">
-            <h4>회사</h4>
-            <a href="#">빅링커 소개</a>
-            <a href="#">코치 소개</a>
-            <a href="#">상담 신청</a>
-            <a href="#">개인정보처리방침</a>
-          </div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <div class="footer-legal">
-          © 2026 BigLinker. All rights reserved.<br>
-          사업자등록번호 000-00-00000 · 통신판매업 제0000-서울-0000호
-        </div>
-        <div class="footer-policy-links">
-          <a href="#">이용약관</a>
-          <a href="#">개인정보처리방침</a>
-        </div>
-      </div>
-    </div>
-  </footer>
-
-
-<div class="mobile-floating-cta">
-    <div>
-      <strong>병원 취업 코칭</strong>
-      <span>지금 무료 상담 신청하기</span>
-    </div>
-    <a class="btn-primary" href="#cta" style="min-height:40px;padding:0 18px;font-size:13px;flex-shrink:0;">신청 →</a>
-  </div>
-
-  <!-- Social Proof Toast Layer -->
-  <div class="sp-layer" aria-label="실시간 현황">
-    <div id="sp-visitor" class="sp-toast sp-toast--visitor is-hidden" role="status" aria-live="polite">
-      <span class="sp-toast__dot"></span>
-      <span class="sp-toast__text">현재 <strong id="sp-visitor-count">23</strong>명이 보고 계십니다</span>
-    </div>
-    <div id="sp-success" class="sp-toast sp-toast--success is-hidden" role="status" aria-live="polite">
-      <span class="sp-toast__avatar">김</span>
-      <div class="sp-toast__body">
-        <strong class="sp-toast__name">김○○ 학생</strong>
-        <span class="sp-toast__action">연세대 합격</span>
-        <span class="sp-toast__time">방금 전</span>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const topShell = document.getElementById('topShell');
-    let lastY = 0;
-    window.addEventListener('scroll', () => {
-      const y = window.scrollY;
-      if (y > 220 && y > lastY) topShell.classList.add('is-collapsed');
-      else topShell.classList.remove('is-collapsed');
-      lastY = y;
-    }, { passive: true });
-  </script>
-  <script src="./script.js"></script>
-
-</body>
-</html>
+<!-- /MAIN -->
