@@ -1315,6 +1315,10 @@
 (function(){
   var tabBtns = document.querySelectorAll('.job-tab-btn');
   var tabPanels = document.querySelectorAll('.tab-panel');
+  var tabBar = document.getElementById('jobTabSection');
+  // 페이지 로드 직후(스크롤=0) 탭 바의 문서 내 절대 위치를 캡처
+  var tabBarScrollTarget = tabBar.getBoundingClientRect().top + window.scrollY - 62;
+
   tabBtns.forEach(function(btn){
     btn.addEventListener('click', function(){
       var target = btn.dataset.tab;
@@ -1324,9 +1328,8 @@
       btn.setAttribute('aria-selected','true');
       var panel = document.getElementById('tab-' + target);
       if(panel) panel.classList.add('active');
-      // 탭 바 상단이 헤더 바로 아래 오도록 스크롤 (offsetTop = 문서 내 절대 위치)
-      var tabBar = document.getElementById('jobTabSection');
-      window.scrollTo({ top: tabBar.offsetTop - 62, behavior: 'smooth' });
+      // 어디서 눌러도 탭 콘텐츠 최상단이 보이도록 스크롤
+      window.scrollTo({ top: tabBarScrollTarget, behavior: 'smooth' });
     });
   });
   var cta = document.getElementById('mobileFloatingCta');
