@@ -243,16 +243,53 @@
     }
     @media (max-width: 760px) {
       .wrap, .inner { padding: 0 16px; }
-      .hero { padding: 60px 0 40px; }
-      .hero-stats { gap: 28px; }
-      .section-light, .section-panel, .section-dark { padding: 64px 0; }
-      .job-tab-btn { padding: 12px 14px; font-size: 13px; }
-      .week-grid { grid-template-columns: 1fr 1fr; }
+      .hero { padding: 56px 0 36px; }
+      .hero h1 { font-size: clamp(26px,7vw,40px); }
+      .hero p { font-size: 14px; margin-bottom: 28px; }
+      .hero-actions { gap: 10px; }
+      .hero-stats { gap: 20px; }
+      .hero-stat .s-num { font-size: 26px; }
+      .section-light, .section-panel, .section-dark { padding: 56px 0; }
+      .sec-h2 { font-size: clamp(20px,5.5vw,28px); }
+      .job-tab-section { top: 56px; }
+      .job-tab-label { font-size: 10px; padding: 12px 0 4px; }
+      .job-tab-btn { padding: 11px 14px; font-size: 13px; gap: 5px; }
+      .job-tab-btn .tab-badge { display: none; }
+      .seg-hero { padding: 48px 0 32px; }
+      .seg-hero-left h2 { font-size: clamp(22px,6vw,34px); }
+      .seg-stats { gap: 20px; }
+      .seg-stat .s-num { font-size: 22px; }
+      .week-grid { grid-template-columns: 1fr; }
       .kakao-grid { grid-template-columns: repeat(2,1fr); }
-      .cert-img { width: 150px; height: 105px; }
-      .seg-hero { padding: 52px 0 36px; }
+      .cert-img { width: 140px; height: 98px; }
       .compare-table { font-size: 12px; }
-      .compare-table th, .compare-table td { padding: 12px 14px; }
+      .compare-table th, .compare-table td { padding: 10px 12px; }
+      .review-band { padding: 72px 0 90px; }
+      .faq-band { padding: 64px 0; }
+      .cta-band { padding: 72px 0; }
+    }
+    @media (max-width: 480px) {
+      .hero { padding: 44px 0 28px; }
+      .hero-stats { gap: 16px; justify-content: space-around; }
+      .hero-stat .s-num { font-size: 22px; }
+      .hero-stat .s-label { font-size: 10px; }
+      .process-grid { grid-template-columns: 1fr; gap: 20px; }
+      .proc-circle { width: 64px; height: 64px; }
+      .proc-num { font-size: 16px; }
+      .week-grid { grid-template-columns: 1fr; }
+      .itype-card { padding: 22px 18px; }
+      .seg-right-cards { gap: 10px; }
+      .seg-point-card { padding: 16px; }
+      .pain-grid { gap: 12px; }
+      .pain-card { padding: 22px 18px; }
+      .why-grid { gap: 14px; }
+      .why-card { padding: 22px 20px; }
+      .seg-stats { gap: 14px; }
+      .kakao-grid { grid-template-columns: repeat(2,1fr); gap: 8px; }
+      .cert-img { width: 130px; height: 90px; }
+      .compare-table th:first-child { width: 90px; }
+      .faq-title { font-size: 22px; }
+      details summary span:first-child { font-size: 14px; }
     }
     /* ══════════════════════════════════════════
        HEADER — common (partials/header.css)
