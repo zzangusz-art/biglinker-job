@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://job.gobiglinker.com/sitemap.xml
