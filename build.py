@@ -69,6 +69,13 @@ _DIR_NAME  = "job"
 _DOMAIN    = "https://gobiglinker.com"
 _DIR_LABEL = "취업 코칭"
 _HOWTO = {'name': '취업 면접 합격 전략 수립 방법', 'steps': ['목표 직무·기업 유형 및 채용 기준 분석', '자기소개서 강점 중심 구성 및 첨삭', '직무별 면접 유형 파악 및 답변 설계', '모의면접 반복 훈련 및 피드백 개선']}
+_COACHES = [
+    {'name': '윤태일',  'jobTitle': '취업전략·실전면접 코치'},
+    {'name': '최지혜',  'jobTitle': '취업·커리어 컨설팅 코치'},
+    {'name': '왕소빈',  'jobTitle': 'HR 기반 직무·취업전략 코치'},
+    {'name': '방병권',  'jobTitle': 'HR 데이터분석·채용 전문 코치'},
+    {'name': '정다운',  'jobTitle': '진로설계·커리어전략 코치'},
+]
 
 
 def _page_url(slug):
@@ -191,6 +198,27 @@ def build_jsonld(title, description, slug, main_block):
                 "acceptedAnswer": {"@type":"Answer","text":a}
             })
         schemas.append({"@context":"https://schema.org","@type":"FAQPage","mainEntity":entities})
+
+    # Person ItemList (index only)
+    if slug == "index" and _COACHES:
+        items = []
+        for i, c in enumerate(_COACHES):
+            items.append({
+                "@type": "ListItem",
+                "position": i + 1,
+                "item": {
+                    "@type": "Person",
+                    "name": c["name"],
+                    "jobTitle": c["jobTitle"],
+                    "worksFor": {"@type": "Organization", "name": "빅링커", "url": _DOMAIN}
+                }
+            })
+        schemas.append({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "name": "빅링커 전문 코치진",
+            "itemListElement": items
+        })
 
     blocks = []
     for s in schemas:
