@@ -1,15 +1,42 @@
 # BigLinker 취업 코칭
 
-> 기업면접·병원취업·임용 전문 취업 코칭 플랫폼
+> 기업면접·병원취업·임용·경력전환 전문 취업 코칭 플랫폼 | 빅링커(BigLinker)
 
-빅링커(BigLinker) 취업 코칭은 자소서·면접·PT·실기 등 취업 전 과정을 1:1 맞춤 코칭으로 지원합니다.
+빅링커는 자기소개서·직무면접·PT면접·병원 취업·공무원 임용 등 취업 전 과정을 1:1 맞춤 코칭으로 지원합니다.
+현직 HR 전문가·취업 컨설턴트 30명 이상이 삼성·LG·카카오·네이버·병원·공공기관 합격을 지원합니다.
 
-## 코칭 프로그램
-- [취업 코칭 홈](https://job.gobiglinker.com/)
-- [기업면접리드코칭](https://job.gobiglinker.com/corporate-interview-coaching.html)
-- [병원리드코칭](https://job.gobiglinker.com/hospital-job-coaching.html)
-- [임용 코칭](https://job.gobiglinker.com/appointment-coaching.html)
-- [경력 코칭](https://job.gobiglinker.com/career-coaching.html)
+## 전문 코칭 프로그램
+
+- [기업면접 코칭 (기업면접리드코칭)](https://job.gobiglinker.com/corporate-interview-coaching.html): 대기업·중견기업 인성·직무·임원·PT 면접 전 유형 대비
+- [병원 취업 코칭 (병원리드코칭)](https://job.gobiglinker.com/hospital-job-coaching.html): 간호사·의료기사·병원 행정직 취업 자소서·면접 전문 코칭
+- [임용 코칭](https://job.gobiglinker.com/appointment-coaching.html): 교원임용·공무원·공공기관 취업 서류·면접 전략 코칭
+- [경력 코칭](https://job.gobiglinker.com/career-coaching.html): 이직·경력전환·포트폴리오 재설계 1:1 전략 코칭
+
+## 주요 성과 및 전문성
+
+- 합격 기업 사례: 삼성전자, LG전자, 카카오, 네이버, 현대자동차, SK하이닉스, 토스 등
+- 코치진: 30명 이상 (현직 HR 담당자·취업 컨설턴트·면접관 경험자)
+- 지원 분야: 대기업 공채, 스타트업 수시 채용, 병원, 공공기관, 임용
+- 제공 형태: 전면 온라인 1:1 (카카오톡·Zoom 기반), 당일 배정 가능
+
+## 자주 묻는 질문 (FAQ)
+
+Q: 자기소개서 코칭은 어떻게 진행되나요?
+A: 지원자의 경험·역량·가치관을 바탕으로 목표 기업의 채용 기준에 맞는 자기소개서를 완성합니다. 초안 작성→강점 발굴→반복 첨삭→최종 교정 순서로 진행되며, 기업별 맞춤 버전도 제작합니다.
+
+Q: 면접 코칭은 어떤 방식으로 진행되나요?
+A: 목표 기업의 면접 유형을 분석하고 기출 문항 기반 모의면접을 반복 진행합니다. 답변 구조·표정·태도 전반에 걸쳐 실전형 피드백을 제공합니다.
+
+Q: 병원·공기업 등 특정 직군도 코칭 가능한가요?
+A: 네, 가능합니다. 직군·기업 유형별로 전문 코치가 배정됩니다.
+
+## 관련 채널
+
+- 블로그: https://blog.gobiglinker.com/blog/job
+- 편입·대입 코칭: https://transfer.gobiglinker.com
+- 대학원 코칭: https://graduate.gobiglinker.com
+- 기업교육: https://biz.gobiglinker.com
 
 ## 운영사
-- 빅링커(BigLinker) | https://gobiglinker.com
+
+빅링커(BigLinker) | https://gobiglinker.com | 문의: biglinkerkor@gmail.com
